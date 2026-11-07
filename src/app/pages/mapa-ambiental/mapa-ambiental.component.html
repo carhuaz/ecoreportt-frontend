@@ -1,0 +1,42 @@
+<section class="map-page">
+  <div class="map-heading">
+    <div>
+      <span class="eyebrow">Observatorio ciudadano</span>
+      <h1>Mapa ambiental de Huancayo</h1>
+      <p>Visualización de incidencias aprobadas y publicadas por la municipalidad.</p>
+    </div>
+    <a routerLink="/reportes-publicos">Ver listado completo</a>
+  </div>
+
+  <div class="map-layout">
+    <div class="map-column">
+      <app-eco-map
+        [reportes]="reportes"
+        altura="570px"
+        (reporteSeleccionado)="seleccionarReporte($event)"
+      />
+      <div class="legend">
+        <span><i class="aprobado"></i>Aprobado</span>
+        <span><i class="proceso"></i>En proceso</span>
+        <span><i class="resuelto"></i>Resuelto</span>
+      </div>
+    </div>
+
+    <aside class="detail-card" *ngIf="reporteActivo as reporte">
+      <span class="detail-status" [ngClass]="claseEstado(reporte)">
+        {{ reporte.estado }}
+      </span>
+      <h2>{{ reporte.titulo }}</h2>
+      <p>{{ reporte.descripcion }}</p>
+
+      <dl>
+        <div><dt>Distrito</dt><dd>{{ reporte.distrito }}</dd></div>
+        <div><dt>Prioridad</dt><dd>{{ reporte.prioridad }}</dd></div>
+        <div><dt>Dirección</dt><dd>{{ reporte.direccion }}</dd></div>
+        <div><dt>Fecha</dt><dd>{{ reporte.fecha }}</dd></div>
+      </dl>
+
+      <a routerLink="/registro" class="detail-action">Quiero participar</a>
+    </aside>
+  </div>
+</section>

@@ -1,0 +1,91 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.map-shell {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: white;
+  box-shadow: var(--shadow-md);
+}
+
+.map-toolbar {
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background: #f0fdf4;
+}
+
+.map-toolbar > div {
+  display: grid;
+}
+
+.map-toolbar strong {
+  color: #14532d;
+  font-size: 0.9rem;
+}
+
+.map-toolbar span {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+}
+
+.map-toolbar button {
+  padding: 0.55rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+  color: white;
+  background: #16803c;
+  font-size: 0.8rem;
+}
+
+.map-container {
+  width: 100%;
+  min-height: 280px;
+  position: relative;
+  background: #e5e7eb;
+  z-index: 1;
+}
+
+:host ::ng-deep .leaflet-container {
+  width: 100%;
+  font-family: inherit;
+  background: #e5e7eb;
+}
+
+:host ::ng-deep .leaflet-tile {
+  backface-visibility: hidden;
+}
+
+.map-message {
+  padding: 0.65rem 1rem;
+  color: #92400e;
+  background: #fffbeb;
+  font-size: 0.8rem;
+}
+
+.map-message.success {
+  color: #166534;
+  background: #dcfce7;
+}
+
+@media (max-width: 620px) {
+  .map-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .map-toolbar button {
+    justify-content: center;
+  }
+}

@@ -1,0 +1,35 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">🌿</div>
+    <h2>Iniciar sesión</h2>
+    <p class="auth-sub">EcoReport Huancayo</p>
+
+    <div class="alert alert-error" *ngIf="error && error !== 'no_verificado'">{{ error }}</div>
+    <div class="alert alert-warn" *ngIf="noVerificado">
+      ⚠️ Esta cuenta aún no está verificada. Revisa tu correo o solicita un nuevo código.
+      <button class="btn-link" (click)="irAVerificar()">Ir a verificar</button>
+    </div>
+    <div class="alert alert-success" *ngIf="exito">✅ Inicio de sesión exitoso. Redirigiendo...</div>
+
+    <div class="form-group">
+      <label for="email">Correo electrónico</label>
+      <input id="email" type="email" [(ngModel)]="email" placeholder="tu@correo.com" />
+    </div>
+
+    <div class="form-group">
+      <label for="password">Contraseña</label>
+      <input id="password" type="password" [(ngModel)]="password" placeholder="••••••" />
+    </div>
+
+    <button class="btn-submit" (click)="ingresar()">Ingresar</button>
+
+    <p class="auth-link">¿No tienes cuenta? <a routerLink="/registro">Regístrate aquí</a></p>
+
+    <div class="demo-hint">
+      <strong>Usuarios demo (contraseña: 123456)</strong><br>
+      Ciudadano: ciudadano&#64;ecoreport.pe<br>
+      Validador: validador1&#64;ecoreport.pe<br>
+      Administrador: admin&#64;ecoreport.pe
+    </div>
+  </div>
+</div>

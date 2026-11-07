@@ -1,0 +1,78 @@
+.page-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 1.75rem;
+  color: #1f2937;
+  margin: 0 0 0.25rem;
+}
+
+.page-header p {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* KPI */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.kpi-card {
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.kpi-total     { background: #e0f2fe; }
+.kpi-pendiente { background: #fee2e2; }
+.kpi-programado{ background: #fef3c7; }
+.kpi-atendido  { background: #dcfce7; }
+.kpi-critico   { background: #f3e8ff; }
+
+.kpi-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1f2937;
+}
+
+.kpi-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.mapa-section { margin-bottom: 2.5rem; }
+
+.mapa-section h2,
+.reportes-section h2 {
+  font-size: 1.25rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+/* Reportes */
+.reportes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .reportes-grid { grid-template-columns: 1fr; }
+}

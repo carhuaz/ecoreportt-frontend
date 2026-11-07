@@ -1,0 +1,78 @@
+<section class="contact-page">
+  <div class="contact-intro">
+    <span class="eyebrow">Estamos cerca</span>
+    <h1>Conversemos por una ciudad más limpia</h1>
+    <p>Envía una consulta, sugerencia o solicitud de apoyo. Este formulario simula una mesa de ayuda municipal.</p>
+
+    <div class="contact-cards">
+      <a href="mailto:contacto@ecoreport.pe">
+        <i class="bi bi-envelope-paper"></i>
+        <span><strong>Correo</strong>contacto&#64;ecoreport.pe</span>
+      </a>
+      <a href="tel:+5164200000">
+        <i class="bi bi-telephone"></i>
+        <span><strong>Central demo</strong>(064) 200 000</span>
+      </a>
+      <div>
+        <i class="bi bi-clock"></i>
+        <span><strong>Horario</strong>Lun. a Vie. 8:00 - 17:00</span>
+      </div>
+    </div>
+  </div>
+
+  <form class="contact-form" (ngSubmit)="enviar()">
+    <div class="form-heading">
+      <span><i class="bi bi-chat-square-heart"></i></span>
+      <div>
+        <h2>Escríbenos</h2>
+        <p>Responderemos usando los datos del prototipo.</p>
+      </div>
+    </div>
+
+    <div class="alert alert-error" *ngIf="error">{{ error }}</div>
+    <div class="success-box" *ngIf="codigoAtencion">
+      <i class="bi bi-check-circle"></i>
+      <div>
+        <strong>Mensaje registrado</strong>
+        <span>Tu código de atención es {{ codigoAtencion }}</span>
+      </div>
+    </div>
+
+    <label>
+      Nombre completo
+      <input type="text" name="nombre" [(ngModel)]="nombre" placeholder="Ej. Ana Quispe">
+    </label>
+
+    <label>
+      Correo electrónico
+      <input type="email" name="email" [(ngModel)]="email" placeholder="ana@correo.com">
+    </label>
+
+    <label>
+      Motivo
+      <select name="asunto" [(ngModel)]="asunto">
+        <option>Consulta general</option>
+        <option>Problema con un reporte</option>
+        <option>Sugerencia ambiental</option>
+        <option>Alianza institucional</option>
+      </select>
+    </label>
+
+    <label>
+      Mensaje
+      <textarea
+        name="mensaje"
+        [(ngModel)]="mensaje"
+        rows="5"
+        maxlength="500"
+        placeholder="Cuéntanos brevemente cómo podemos ayudarte..."
+      ></textarea>
+      <small>{{ mensaje.length }}/500 caracteres</small>
+    </label>
+
+    <button type="submit">
+      Enviar mensaje
+      <i class="bi bi-send"></i>
+    </button>
+  </form>
+</section>

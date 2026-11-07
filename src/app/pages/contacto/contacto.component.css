@@ -1,0 +1,160 @@
+.contact-page {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr minmax(360px, 480px);
+  gap: 4rem;
+  align-items: center;
+}
+
+.contact-intro h1 {
+  margin: 0.45rem 0 1rem;
+  max-width: 620px;
+  color: #0f172a;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 1.05;
+}
+
+.contact-intro > p {
+  max-width: 570px;
+  color: var(--color-muted);
+  font-size: 1.05rem;
+}
+
+.eyebrow {
+  color: #16803c;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.contact-cards {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.contact-cards > * {
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border: 1px solid #dcfce7;
+  border-radius: 14px;
+  color: #14532d;
+  background: #f0fdf4;
+}
+
+.contact-cards i {
+  font-size: 1.25rem;
+}
+
+.contact-cards span {
+  display: grid;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.contact-cards strong {
+  color: #14532d;
+}
+
+.contact-form {
+  padding: 2rem;
+  display: grid;
+  gap: 1rem;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 24px 70px rgba(20, 83, 45, 0.16);
+}
+
+.form-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.form-heading > span {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: white;
+  background: #16803c;
+  font-size: 1.3rem;
+}
+
+.form-heading h2,
+.form-heading p {
+  margin: 0;
+}
+
+.form-heading p {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.contact-form label {
+  display: grid;
+  gap: 0.4rem;
+  color: #334155;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.contact-form small {
+  justify-self: end;
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+.contact-form button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: white;
+  background: linear-gradient(135deg, #16803c, #0f5132);
+}
+
+.success-box {
+  padding: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: 12px;
+  color: #166534;
+  background: #dcfce7;
+}
+
+.success-box i {
+  font-size: 1.4rem;
+}
+
+.success-box div {
+  display: grid;
+}
+
+.success-box span {
+  font-size: 0.85rem;
+}
+
+@media (max-width: 850px) {
+  .contact-page {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-page {
+    padding: 2.5rem 1rem;
+  }
+
+  .contact-form {
+    padding: 1.3rem;
+  }
+}

@@ -1,0 +1,66 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.modal-titulo {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  color: #1f2937;
+}
+
+.modal-mensaje {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.modal-acciones {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.btn-cancelar {
+  padding: 0.5rem 1.25rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.btn-cancelar:hover { background: #f9fafb; }
+
+.btn-confirmar {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  transition: opacity 0.2s;
+}
+
+.btn-confirmar:hover { opacity: 0.85; }
+.btn-confirmar.primario  { background: #16803c; }
+.btn-confirmar.peligro   { background: #dc2626; }
+.btn-confirmar.exito     { background: #2563eb; }

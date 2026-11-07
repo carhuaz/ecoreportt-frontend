@@ -1,0 +1,18 @@
+<div class="map-shell">
+  <div class="map-toolbar" *ngIf="seleccionable">
+    <div>
+      <strong>Ubicación exacta</strong>
+      <span>Haz clic sobre el mapa o usa tu ubicación actual.</span>
+    </div>
+    <button type="button" (click)="usarMiUbicacion()" [disabled]="buscandoUbicacion">
+      <i class="bi bi-crosshair"></i>
+      {{ buscandoUbicacion ? 'Buscando...' : 'Usar mi ubicación' }}
+    </button>
+  </div>
+
+  <div #mapContainer class="map-container" [style.height]="altura"></div>
+
+  <div class="map-message" *ngIf="mensajeUbicacion" [class.success]="latitud !== undefined">
+    {{ mensajeUbicacion }}
+  </div>
+</div>

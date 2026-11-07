@@ -1,0 +1,149 @@
+<div class="page-section">
+  <div class="page-header">
+    <h1>Gestión de cuadrillas</h1>
+    <p>Asigna cuadrillas municipales a los reportes aprobados.</p>
+  </div>
+
+  <div class="alert alert-success" *ngIf="mensajeExito">{{ mensajeExito }}</div>
+  <div class="alert alert-error" *ngIf="mensajeError">{{ mensajeError }}</div>
+
+  <h2>Reportes aprobados pendientes de asignación</h2>
+
+  <div class="list-toolbar" *ngIf="total > 0">
+    <span class="toolbar-total">
+      Mostrando {{ desde }}–{{ hasta }} de <strong>{{ total }}</strong> reportes aprobados
+    </span>
+    <label class="page-size-label">
+      Por página
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+        <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+      </select>
+    </label>
+  </div>
+
+  <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+
+  <div *ngIf="reportesAprobados.length === 0" class="empty-state">
+    <span>✅</span>
+    <p>No hay reportes aprobados pendientes de asignación.</p>
+  </div>
+
+  <div class="tabla-wrap" *ngIf="reportesAprobados.length > 0">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Distrito</th>
+          <th>Prioridad</th>
+          <th>Estado</th>
+          <th>Asignar a</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of reportesAprobados">
+          <td>
+            <strong>{{ r.titulo }}</strong>
+            <br><small>{{ r.direccion }}</small>
+          </td>
+          <td>{{ r.distrito }}</td>
+          <td>{{ r.prioridad }}</td>
+          <td><app-badge-estado [estado]="r.estado" /></td>
+          <td>
+            <div class="asignar-grupo">
+              <select [(ngModel)]="seleccion[r.id]">
+                <option [value]="undefined" disabled>Seleccionar cuadrilla</option>
+                <option *ngFor="let c of cuadrillas" [value]="c.id">{{ c.nombre }} – {{ c.zonaAsignada }}</option>
+              </select>
+              <button class="btn-asignar" (click)="asignar(r.id)" [disabled]="!seleccion[r.id]">
+                Asignar
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+
+  <div class="section-header">
+    <h2>Cuadrillas registradas</h2>
+    <button class="btn-primary" (click)="abrirModalNueva()">+ Nueva cuadrilla</button>
+  </div>
+  <div class="tabla-wrap">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Responsable</th>
+          <th>Estado</th>
+          <th>Zona</th>
+          <th>Distrito</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of cuadrillas">
+          <td><strong>{{ c.nombre }}</strong></td>
+          <td>{{ c.responsable }}</td>
+          <td><app-badge-estado [estado]="c.estado" /></td>
+          <td>{{ c.zonaAsignada }}</td>
+          <td>{{ c.distrito }}</td>
+          <td>
+            <button class="btn-sm" (click)="abrirModalEditar(c)" title="Editar">✏️</button>
+            <button class="btn-sm btn-danger" (click)="eliminarCuadrilla(c)" title="Eliminar">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal crear/editar cuadrilla -->
+<div class="modal-overlay" *ngIf="modal.abierto" (click)="cerrarModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>{{ modal.editando ? 'Editar' : 'Nueva' }} cuadrilla</h3>
+    <div class="alert alert-error" *ngIf="mensajeError">{{ mensajeError }}</div>
+    <div class="form-group">
+      <label>Nombre de la cuadrilla</label>
+      <input type="text" [(ngModel)]="modal.nombre" placeholder="Ej: Cuadrilla Alfa" />
+    </div>
+    <div class="form-group">
+      <label>Responsable (usuario)</label>
+      <select [(ngModel)]="modal.responsable_id" (change)="onResponsableChange(modal.responsable_id)">
+        <option [value]="undefined">Seleccionar responsable</option>
+        <option *ngFor="let u of responsables" [value]="u.id">{{ u.nombre }} ({{ u.email }})</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Nombre del responsable</label>
+      <input type="text" [(ngModel)]="modal.responsable" placeholder="Nombre del encargado" />
+    </div>
+    <div class="form-group">
+      <label>Distrito</label>
+      <select [(ngModel)]="modal.distrito">
+        <option value="Huancayo">Huancayo</option>
+        <option value="El Tambo">El Tambo</option>
+        <option value="Chilca">Chilca</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Zona asignada</label>
+      <input type="text" [(ngModel)]="modal.zona_asignada" placeholder="Ej: Zona norte, Av. Principal" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primary" (click)="guardarCuadrilla()">{{ modal.editando ? 'Guardar cambios' : 'Crear cuadrilla' }}</button>
+    </div>
+  </div>
+</div>
+
+<app-modal-confirmacion
+  [visible]="!!cuadrillaAEliminar"
+  titulo="Eliminar cuadrilla"
+  [mensaje]="mensajeEliminar"
+  textoConfirmar="Eliminar"
+  tipoBtnConfirmar="peligro"
+  (confirmar)="confirmarEliminacion()"
+  (cancelar)="cancelarEliminacion()">
+</app-modal-confirmacion>

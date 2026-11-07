@@ -1,0 +1,119 @@
+<div class="page-section">
+  <div class="page-header">
+    <h1>Auditoría de reportes atendidos</h1>
+    <p>Revisa los reportes atendidos por las cuadrillas y sus evidencias.</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-filters">
+      <label>
+        Cuadrilla
+        <select [(ngModel)]="filtroCuadrilla" (change)="onFiltroChange()">
+          <option value="">Todas</option>
+          <option *ngFor="let c of cuadrillas" [value]="c.id">{{ c.nombre }}</option>
+        </select>
+      </label>
+      <label>
+        Estado
+        <select [(ngModel)]="filtroEstado" (change)="onFiltroChange()">
+          <option value="">Todos</option>
+          <option value="Atendido">Atendido</option>
+          <option value="Verificado">Verificado</option>
+        </select>
+      </label>
+      <label>
+        Por página
+        <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+        </select>
+      </label>
+    </div>
+    <span class="toolbar-total" *ngIf="total > 0">
+      Mostrando {{ desde }}–{{ hasta }} de <strong>{{ total }}</strong> reportes
+    </span>
+  </div>
+
+  <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+
+  <div *ngIf="items.length === 0" class="empty-state">
+    <span>📋</span>
+    <p>No hay reportes atendidos registrados.</p>
+  </div>
+
+  <div class="tabla-wrap" *ngIf="items.length > 0">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Reporte</th>
+          <th>Cuadrilla</th>
+          <th>Distrito</th>
+          <th>Estado</th>
+          <th>Evidencias</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items">
+          <td><strong>{{ item.titulo }}</strong></td>
+          <td><span class="cuadrilla-badge">{{ item.cuadrilla_nombre || 'Sin asignar' }}</span></td>
+          <td>{{ item.distrito }}</td>
+          <td><app-badge-estado [estado]="item.estado" /></td>
+          <td>
+            <button class="btn-evidencias" *ngIf="item.imagenes?.length" (click)="abrirDetalle(item)">
+              📷 {{ item.imagenes!.length }} imagen(es)
+            </button>
+            <span *ngIf="!item.imagenes?.length">—</span>
+          </td>
+          <td>{{ item.fecha }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+</div>
+
+<!-- Modal detalle de evidencias -->
+<div class="modal-overlay detail-overlay" *ngIf="modalDetalleVisible && itemDetalle as item" (click)="cerrarDetalle()">
+  <article class="modal detail-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header detail-header">
+      <div>
+        <span class="detail-kicker">Reporte #{{ item.id }}</span>
+        <h2>{{ item.titulo }}</h2>
+      </div>
+      <button class="btn-close" type="button" (click)="cerrarDetalle()">✕</button>
+    </div>
+
+    <div class="detail-body">
+      <section class="evidence-column">
+        <div class="main-evidence">
+          <img *ngIf="imagenDetalleSeleccionada" [src]="imagenDetalleSeleccionada" [alt]="'Evidencia de ' + item.titulo">
+          <span class="image-counter" *ngIf="item.imagenes?.length">{{ item.imagenes!.length }} evidencia(s)</span>
+          <p class="sin-evidencias" *ngIf="!item.imagenes?.length">No se adjuntaron evidencias.</p>
+        </div>
+
+        <div class="thumbnail-list" *ngIf="(item.imagenes?.length ?? 0) > 1">
+          <button
+            type="button"
+            *ngFor="let imagen of item.imagenes; let i = index"
+            [class.active]="imagenDetalleSeleccionada === imagen"
+            (click)="seleccionarImagen(imagen)"
+          >
+            <img [src]="imagen" [alt]="'Evidencia ' + (i + 1)">
+          </button>
+        </div>
+      </section>
+
+      <aside class="report-summary">
+        <dl class="data-list">
+          <div><dt>Cuadrilla</dt><dd>{{ item.cuadrilla_nombre || '—' }}</dd></div>
+          <div><dt>Distrito</dt><dd>{{ item.distrito }}</dd></div>
+          <div><dt>Estado</dt><dd>{{ item.estado }}</dd></div>
+          <div><dt>Fecha</dt><dd>{{ item.fecha }}</dd></div>
+          <div><dt>Observación</dt><dd>{{ item.observacion_completado || '—' }}</dd></div>
+        </dl>
+        <p class="desc-text">{{ item.descripcion }}</p>
+      </aside>
+    </div>
+  </article>
+</div>

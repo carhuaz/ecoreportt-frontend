@@ -1,0 +1,245 @@
+<div class="page-section">
+  <div class="page-header">
+    <h1>Panel de validación municipal</h1>
+    <p>Revisa y aprueba o rechaza los reportes ciudadanos pendientes.</p>
+  </div>
+
+  <div class="alert alert-success" *ngIf="mensajeExito">{{ mensajeExito }}</div>
+
+  <!-- Filtros y controles de paginación -->
+  <div class="validacion-toolbar">
+    <div class="toolbar-left">
+      <label class="filter-label">
+        Distrito
+        <select [(ngModel)]="filtroDistrito" (change)="onFiltroDistritoChange()">
+          <option value="">Todos</option>
+          <option value="Huancayo">Huancayo</option>
+          <option value="El Tambo">El Tambo</option>
+          <option value="Chilca">Chilca</option>
+        </select>
+      </label>
+      <span class="toolbar-total" *ngIf="total > 0">
+        Mostrando {{ desde }}–{{ hasta }} de <strong>{{ total }}</strong> solicitudes
+      </span>
+    </div>
+    <div class="toolbar-right">
+      <label class="filter-label">
+        Por página
+        <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+
+  <div *ngIf="reportes.length === 0" class="empty-state">
+    <span>✅</span>
+    <p>No hay reportes pendientes de validación{{ filtroDistrito ? ' en ' + filtroDistrito : '' }}.</p>
+  </div>
+
+  <div class="tabla-wrap" *ngIf="reportes.length > 0">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Distrito</th>
+          <th>Prioridad</th>
+          <th>Fecha</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of reportes">
+          <td>
+            <button class="title-button" type="button" (click)="abrirDetalle(r)">
+              {{ r.titulo }}
+            </button>
+            <br><small>{{ r.descripcion | slice:0:60 }}...</small>
+          </td>
+          <td>{{ r.distrito }}</td>
+          <td>
+            <span class="prioridad" [ngClass]="r.prioridad.toLowerCase()">{{ r.prioridad }}</span>
+          </td>
+          <td>{{ r.fecha }}</td>
+          <td><app-badge-estado [estado]="r.estado" /></td>
+          <td>
+            <div class="acciones">
+              <button class="btn-detalle" (click)="abrirDetalle(r)">
+                <i class="bi bi-eye"></i> Ver detalle
+              </button>
+              <button class="btn-aprobar" (click)="confirmarAccion(r.id, 'aprobar')">✔ Aprobar</button>
+              <button class="btn-rechazar" (click)="confirmarAccion(r.id, 'rechazar')">✖ Rechazar</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+
+  <!-- Historial de decisiones -->
+  <div class="historial-section">
+    <h2>Decisiones realizadas</h2>
+    <p class="section-description">Las aprobaciones y rechazos permanecen guardados en este prototipo.</p>
+
+    <div class="tabla-wrap" *ngIf="reportesProcesados.length > 0">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Reporte</th>
+            <th>Distrito</th>
+            <th>Prioridad</th>
+            <th>Resultado</th>
+            <th>Observación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of reportesProcesados">
+            <td>
+              <button class="title-button" type="button" (click)="abrirDetalle(r)">
+                {{ r.titulo }}
+              </button>
+            </td>
+            <td>{{ r.distrito }}</td>
+            <td>{{ r.prioridad }}</td>
+            <td><app-badge-estado [estado]="r.estado" /></td>
+            <td>{{ r.observacionValidacion || 'Sin observaciones' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal detalle -->
+<div class="modal-overlay detail-overlay" *ngIf="modalDetalleVisible && reporteDetalle as reporte" (click)="cerrarDetalle()">
+  <article class="modal detail-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header detail-header">
+      <div>
+        <span class="detail-kicker">Reporte #{{ reporte.id }}</span>
+        <h2>{{ reporte.titulo }}</h2>
+      </div>
+      <button class="btn-close" type="button" (click)="cerrarDetalle()" aria-label="Cerrar detalle">✕</button>
+    </div>
+
+    <div class="detail-body">
+      <section class="evidence-column">
+        <div class="main-evidence">
+          <img [src]="imagenDetalleSeleccionada" [alt]="'Evidencia de ' + reporte.titulo">
+          <span class="image-counter">{{ reporte.imagenes.length || 1 }} evidencia(s)</span>
+        </div>
+
+        <div class="thumbnail-list" *ngIf="reporte.imagenes.length > 1">
+          <button
+            type="button"
+            *ngFor="let imagen of reporte.imagenes; let i = index"
+            [class.active]="imagenDetalleSeleccionada === imagen"
+            (click)="seleccionarImagen(imagen)"
+          >
+            <img [src]="imagen" [alt]="'Evidencia ' + (i + 1)">
+          </button>
+        </div>
+
+        <div class="detail-section">
+          <h3><i class="bi bi-card-text"></i> Descripción ciudadana</h3>
+          <p>{{ reporte.descripcion }}</p>
+        </div>
+
+        <div class="detail-section" *ngIf="reporte.latitud !== undefined && reporte.longitud !== undefined">
+          <h3><i class="bi bi-geo-alt"></i> Ubicación registrada</h3>
+          <app-eco-map [reportes]="reportesDetalleMapa" altura="260px" />
+          <small>
+            Coordenadas: {{ reporte.latitud | number:'1.5-5' }},
+            {{ reporte.longitud | number:'1.5-5' }}
+          </small>
+        </div>
+      </section>
+
+      <aside class="report-summary">
+        <div class="status-row">
+          <app-badge-estado [estado]="reporte.estado" />
+          <span class="prioridad detail-priority" [ngClass]="reporte.prioridad.toLowerCase()">
+            Prioridad {{ reporte.prioridad }}
+          </span>
+        </div>
+
+        <dl class="data-list">
+          <div><dt>Ciudadano</dt><dd>{{ reporte.ciudadano || 'No identificado' }}</dd></div>
+          <div><dt>Distrito</dt><dd>{{ reporte.distrito }}</dd></div>
+          <div><dt>Dirección</dt><dd>{{ reporte.direccion }}</dd></div>
+          <div><dt>Fecha</dt><dd>{{ reporte.fecha }}</dd></div>
+          <div><dt>Puntaje</dt><dd>{{ reporte.puntajePrioridad }} puntos</dd></div>
+        </dl>
+
+        <div class="criteria-box">
+          <h3>Criterios de prioridad</h3>
+          <ul *ngIf="reporte.criteriosPrioridad.length > 0; else sinCriterios">
+            <li *ngFor="let criterio of reporte.criteriosPrioridad">
+              <i class="bi bi-check2-circle"></i>
+              {{ criterio }}
+            </li>
+          </ul>
+          <ng-template #sinCriterios>
+            <p>El ciudadano no registró criterios adicionales.</p>
+          </ng-template>
+        </div>
+
+        <div class="history-box">
+          <h3>Historial</h3>
+          <div class="history-item" *ngFor="let evento of reporte.historial">
+            <span></span>
+            <div>
+              <strong>{{ evento.accion }}</strong>
+              <small>{{ evento.fecha }} · {{ evento.usuario }}</small>
+              <p *ngIf="evento.observacion">{{ evento.observacion }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-actions" *ngIf="reporte.estado === 'Pendiente'">
+          <button class="btn-aprobar" type="button" (click)="confirmarAccion(reporte.id, 'aprobar')">
+            <i class="bi bi-check-lg"></i> Aprobar reporte
+          </button>
+          <button class="btn-rechazar" type="button" (click)="confirmarAccion(reporte.id, 'rechazar')">
+            <i class="bi bi-x-lg"></i> Rechazar reporte
+          </button>
+        </div>
+      </aside>
+    </div>
+  </article>
+</div>
+
+<!-- Modal confirmación -->
+<div class="modal-overlay" *ngIf="modalVisible" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ tituloModal }}</h2>
+      <button class="btn-close" (click)="cerrarModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>{{ mensajeModal }}</p>
+      <div class="form-group" *ngIf="accionPendiente === 'rechazar'">
+        <label for="observacion">Observación (motivo del rechazo):</label>
+        <textarea
+          id="observacion"
+          [(ngModel)]="observacion"
+          rows="3"
+          placeholder="Explica por qué se rechaza este reporte...">
+        </textarea>
+      </div>
+      <div class="alert alert-error" *ngIf="mensajeError">{{ mensajeError }}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button
+        [class]="accionPendiente === 'aprobar' ? 'btn-primary' : 'btn-danger'"
+        (click)="ejecutarAccion()">
+        {{ accionPendiente === 'aprobar' ? 'Aprobar' : 'Rechazar' }}
+      </button>
+    </div>
+  </div>
+</div>

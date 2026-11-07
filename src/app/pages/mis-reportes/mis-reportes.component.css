@@ -1,0 +1,56 @@
+.page-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.page-header h1 {
+  font-size: 1.75rem;
+  color: #1f2937;
+  margin: 0;
+  flex: 1;
+}
+
+.page-header p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+  width: 100%;
+}
+
+.btn-nuevo {
+  background: #16803c;
+  color: #fff;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.btn-nuevo:hover { background: #0f5132; }
+
+.reportes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #9ca3af;
+}
+
+.empty-state span { font-size: 3rem; display: block; margin-bottom: 1rem; }
+.empty-state p { font-size: 1rem; margin-bottom: 1rem; }

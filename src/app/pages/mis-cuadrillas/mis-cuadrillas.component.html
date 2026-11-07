@@ -1,0 +1,166 @@
+<div class="page-section">
+  <div class="page-header">
+    <h1>Mis cuadrillas</h1>
+    <p>Gestiona las cuadrillas a tu cargo y sus reportes asignados.</p>
+  </div>
+
+  <div class="alert alert-success" *ngIf="mensajeExito">{{ mensajeExito }}</div>
+  <div class="alert alert-error" *ngIf="mensajeError">{{ mensajeError }}</div>
+
+  <div *ngIf="cargando" class="loading">Cargando...</div>
+
+  <div *ngIf="!cargando && cuadrillas.length === 0" class="empty-state">
+    <span>🚚</span>
+    <p>No tienes cuadrillas asignadas.</p>
+  </div>
+
+  <div *ngIf="cuadrillas.length > 0" class="cuadrillas-tabs">
+    <button
+      *ngFor="let c of cuadrillas"
+      class="tab-btn"
+      [class.active]="cuadrillaSeleccionada === c.id"
+      (click)="seleccionarCuadrilla(c.id)"
+    >
+      {{ c.nombre }}
+      <small>{{ c.distrito }}</small>
+    </button>
+  </div>
+
+  <div *ngIf="cuadrillaActual" class="cuadrilla-info-card">
+    <div class="info-row">
+      <span class="info-label">Responsable:</span>
+      <span>{{ cuadrillaActual.responsable }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Estado:</span>
+      <app-badge-estado [estado]="cuadrillaActual.estado" />
+    </div>
+    <div class="info-row">
+      <span class="info-label">Zona:</span>
+      <span>{{ cuadrillaActual.zonaAsignada || 'No asignada' }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Distrito:</span>
+      <span>{{ cuadrillaActual.distrito }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="cuadrillaSeleccionada" class="reportes-section">
+    <h2>Reportes activos ({{ reportesActivos.length }})</h2>
+
+    <div *ngIf="reportesActivos.length === 0" class="empty-state">
+      <p>No hay reportes activos para esta cuadrilla.</p>
+    </div>
+
+    <div class="tabla-wrap" *ngIf="reportesActivos.length > 0">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Dirección</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of reportesActivos">
+            <td><strong>{{ r.titulo }}</strong></td>
+            <td>{{ r.direccion }}</td>
+            <td>
+              <span class="prioridad" [ngClass]="r.prioridad.toLowerCase()">{{ r.prioridad }}</span>
+            </td>
+            <td><app-badge-estado [estado]="r.estado" /></td>
+            <td>
+              <div class="acciones">
+                <button
+                  *ngIf="r.estado === 'Programado'"
+                  class="btn-atender"
+                  (click)="marcarAtencion(r)"
+                >
+                  Iniciar atención
+                </button>
+                <button
+                  *ngIf="r.estado === 'En atención'"
+                  class="btn-completar"
+                  (click)="abrirModalCompletar(r)"
+                >
+                  Completar con evidencias
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Completados ({{ reportesCompletados.length }})</h2>
+
+    <div *ngIf="reportesCompletados.length === 0" class="empty-state">
+      <p>Aún no hay reportes completados.</p>
+    </div>
+
+    <div class="tabla-wrap" *ngIf="reportesCompletados.length > 0">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Dirección</th>
+            <th>Prioridad</th>
+            <th>Estado</th>
+            <th>Evidencias</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of reportesCompletados">
+            <td><strong>{{ r.titulo }}</strong></td>
+            <td>{{ r.direccion }}</td>
+            <td>
+              <span class="prioridad" [ngClass]="r.prioridad.toLowerCase()">{{ r.prioridad }}</span>
+            </td>
+            <td><app-badge-estado [estado]="r.estado" /></td>
+            <td>
+              <div class="evidencias-mini" *ngIf="r.imagenes && r.imagenes.length > 0">
+                <img *ngFor="let img of r.imagenes.slice(0, 3)" [src]="img" class="mini-img" />
+                <span *ngIf="r.imagenes.length > 3">+{{ r.imagenes.length - 3 }}</span>
+              </div>
+              <span *ngIf="!r.imagenes || r.imagenes.length === 0">Sin evidencias</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal completar con evidencias -->
+<div class="modal-overlay" *ngIf="modalCompletarAbierto" (click)="cerrarModalCompletar()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Completar reporte</h3>
+      <button class="btn-close" (click)="cerrarModalCompletar()">✕</button>
+    </div>
+
+    <div class="modal-body" *ngIf="reporteACompletar">
+      <p><strong>Reporte:</strong> {{ reporteACompletar.titulo }}</p>
+      <p><strong>Dirección:</strong> {{ reporteACompletar.direccion }}</p>
+
+      <div class="form-group">
+        <label>Evidencias del trabajo realizado</label>
+        <app-image-uploader [(imagenes)]="evidencias" />
+      </div>
+
+      <div class="form-group">
+        <label>Observación (opcional)</label>
+        <textarea [(ngModel)]="observacion" rows="3" placeholder="Describe el trabajo realizado..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cerrarModalCompletar()">Cancelar</button>
+      <button class="btn-primary" (click)="completarReporte()" [disabled]="evidencias.length === 0">
+        Completar reporte
+      </button>
+    </div>
+  </div>
+</div>

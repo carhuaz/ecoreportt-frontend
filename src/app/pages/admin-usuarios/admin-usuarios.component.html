@@ -1,0 +1,171 @@
+<div class="admin-usuarios-page">
+  <div class="page-header">
+    <h1>Gestión de Usuarios</h1>
+    <p class="page-subtitle">Administra roles y permisos de usuarios</p>
+  </div>
+
+  <div class="container">
+    <div
+      class="alert"
+      [ngClass]="mensajeEsError ? 'alert-error' : 'alert-success'"
+      *ngIf="mensaje"
+    >
+      {{ mensaje }}
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters-section">
+      <div class="filter-group">
+        <label for="filtroNombre">Buscar nombre o correo:</label>
+        <input
+          id="filtroNombre"
+          type="text"
+          [(ngModel)]="filtroNombre"
+          (keyup)="onFiltroChange()"
+          placeholder="Buscar..."
+        />
+      </div>
+
+      <div class="filter-group">
+        <label for="filtroRol">Filtrar por rol:</label>
+        <select id="filtroRol" [(ngModel)]="filtroRol" (change)="onFiltroChange()">
+          <option value="">Todos los roles</option>
+          <option value="Ciudadano">Ciudadano</option>
+          <option value="Validador">Validador</option>
+          <option value="ResponsableCuadrilla">Responsable de Cuadrilla</option>
+          <option value="Administrador">Administrador</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="pageSize">Por página</label>
+        <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <div class="usuarios-section">
+      <div class="section-header">
+        <h2>{{ total }} Usuario(s)</h2>
+        <span class="toolbar-total" *ngIf="total > 0">
+          Mostrando {{ desde }}–{{ hasta }}
+        </span>
+      </div>
+
+      <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+
+      <div class="table-wrap" *ngIf="usuarios.length > 0">
+      <table class="usuarios-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Fecha de Registro</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let usuario of usuarios; let i = index">
+            <td>{{ desde + i }}</td>
+            <td>{{ usuario.nombre }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>
+              <span class="badge" [ngClass]="obtenerColorRol(usuario.rol)">
+                {{ usuario.rol }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="obtenerColorEstado(usuario.activo)">
+                {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>{{ usuario.fechaRegistro }}</td>
+            <td class="actions-cell">
+              <button
+                class="btn-sm btn-primary"
+                (click)="abrirModalCambiarRol(usuario)"
+                [disabled]="esUsuarioActual(usuario)"
+                [title]="esUsuarioActual(usuario) ? 'No puedes cambiar tu propio rol' : 'Cambiar rol'"
+              >
+                Cambiar rol
+              </button>
+              <button 
+                class="btn-sm" 
+                [ngClass]="usuario.activo ? 'btn-danger' : 'btn-success'"
+                (click)="cambiarEstado(usuario)"
+                [disabled]="esUsuarioActual(usuario)"
+              >
+                {{ usuario.activo ? 'Desactivar' : 'Activar' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+
+      <div class="empty-state" *ngIf="usuarios.length === 0">
+        <p>No hay usuarios que coincidan con los filtros.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para cambiar rol -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Cambiar rol de usuario</h2>
+      <button class="btn-close" (click)="cerrarModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <p><strong>Usuario:</strong> {{ usuarioSeleccionado?.nombre }}</p>
+      <p><strong>Rol actual:</strong> {{ usuarioSeleccionado?.rol }}</p>
+
+      <div class="form-group">
+        <label for="nuevoRol">Nuevo rol:</label>
+        <select id="nuevoRol" [(ngModel)]="rolSeleccionadoModal">
+          <option value="Ciudadano">Ciudadano</option>
+          <option value="Validador">Validador</option>
+          <option value="ResponsableCuadrilla">Responsable de Cuadrilla</option>
+          <option value="Administrador">Administrador</option>
+        </select>
+      </div>
+
+      <div class="alert alert-warning" *ngIf="rolSeleccionadoModal === 'Administrador'">
+        ⚠️ Advertencia: Estás a punto de asignar permisos de administrador. Esto otorgará acceso completo al sistema.
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-primary" (click)="confirmarCambiarRol()">Confirmar cambio</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal-overlay" *ngIf="mostrarConfirmacion" (click)="mostrarConfirmacion = false">
+  <div class="modal modal-confirmation" (click)="$event.stopPropagation()">
+    <div class="modal-body">
+      <p class="text-center">
+        <strong>⚠️ ¿Estás seguro?</strong>
+      </p>
+      <p class="text-center" style="margin-top: 1rem;">
+        Estás a punto de asignar permisos de administrador. Esta acción otorgará acceso completo al sistema.
+      </p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="mostrarConfirmacion = false">Cancelar</button>
+      <button class="btn-danger" (click)="realizarCambioRol()">Sí, cambiar a administrador</button>
+    </div>
+  </div>
+</div>

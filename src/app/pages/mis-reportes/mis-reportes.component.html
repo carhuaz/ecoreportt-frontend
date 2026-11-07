@@ -1,0 +1,32 @@
+<div class="page-section">
+  <div class="page-header">
+    <h1>Mis reportes</h1>
+    <p>Historial de reportes que has registrado como ciudadano.</p>
+  </div>
+  <a routerLink="/reportar" class="btn-primary">+ Nuevo reporte</a>
+
+  <div class="list-toolbar" *ngIf="total > 0">
+    <span class="toolbar-total">
+      Mostrando {{ desde }}–{{ hasta }} de <strong>{{ total }}</strong> reportes
+    </span>
+    <label class="page-size-label">
+      Por página
+      <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+        <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
+      </select>
+    </label>
+  </div>
+
+  <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+
+  <div class="reportes-grid" *ngIf="reportes.length > 0">
+    <app-card-reporte *ngFor="let r of reportes" [reporte]="r" />
+  </div>
+
+  <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+
+  <div class="empty-state" *ngIf="total === 0">
+    <p>Aún no has registrado ningún reporte.</p>
+    <a routerLink="/reportar" class="btn-primary">Crear mi primer reporte</a>
+  </div>
+</div>

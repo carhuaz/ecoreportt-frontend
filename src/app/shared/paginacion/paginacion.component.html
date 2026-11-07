@@ -1,0 +1,7 @@
+<div class="paginacion" *ngIf="totalPages > 1">
+  <button (click)="irPagina(1)" [disabled]="page === 1" title="Primera">««</button>
+  <button (click)="irPagina(page - 1)" [disabled]="page === 1" title="Anterior">«</button>
+  <button *ngFor="let p of paginas()" (click)="irPagina(p)" [class.active]="p === page">{{ p }}</button>
+  <button (click)="irPagina(page + 1)" [disabled]="page === totalPages" title="Siguiente">»</button>
+  <button (click)="irPagina(totalPages)" [disabled]="page === totalPages" title="Última">»»</button>
+</div>

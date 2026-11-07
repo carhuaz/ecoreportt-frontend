@@ -1,0 +1,39 @@
+<div class="page-section">
+  <div class="page-header">
+    <h1>Estadísticas de reportes</h1>
+    <p>Resumen del estado actual de todos los reportes en EcoReport Huancayo.</p>
+  </div>
+
+  <!-- Total -->
+  <div class="total-card">
+    <span class="total-num">{{ total }}</span>
+    <span class="total-label">Total de reportes registrados</span>
+  </div>
+
+  <!-- Barras -->
+  <div class="stats-container">
+    <h2>Distribución por estado</h2>
+    <div class="stat-row" *ngFor="let s of stats">
+      <div class="stat-info">
+        <span class="stat-label">{{ s.label }}</span>
+        <span class="stat-valor" [style.color]="s.color">{{ s.valor }}</span>
+      </div>
+      <div class="barra-fondo">
+        <div
+          class="barra-relleno"
+          [style.width.%]="s.porcentaje"
+          [style.background]="s.color">
+        </div>
+      </div>
+      <span class="stat-pct">{{ s.porcentaje }}%</span>
+    </div>
+  </div>
+
+  <!-- Cards resumen -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let s of stats" [style.background]="s.bg">
+      <span class="stat-card-num" [style.color]="s.color">{{ s.valor }}</span>
+      <span class="stat-card-label">{{ s.label }}</span>
+    </div>
+  </div>
+</div>

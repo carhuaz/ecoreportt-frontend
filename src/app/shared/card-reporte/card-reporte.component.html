@@ -1,0 +1,18 @@
+<div class="card">
+  <div class="card-img-wrap">
+    <img [src]="imagenSrc" [alt]="reporte.titulo" class="card-img" loading="lazy" />
+    <span class="prioridad" [ngClass]="prioridadClase">{{ reporte.prioridad || 'Media' }}</span>
+  </div>
+  <div class="card-body">
+    <div class="card-header-row">
+      <h3 class="card-titulo">{{ reporte.titulo }}</h3>
+      <app-badge-estado [estado]="reporte.estado" />
+    </div>
+    <p class="card-desc">{{ reporte.descripcion }}</p>
+    <div class="card-meta">
+      <span>📍 {{ reporte.distrito }} — {{ reporte.direccion }}</span>
+      <span>📅 {{ reporte.fecha }}</span>
+      <span *ngIf="reporte.ciudadano">👤 {{ reporte.ciudadano }}</span>
+    </div>
+  </div>
+</div>
