@@ -111,20 +111,21 @@ Sistema web de reportes ambientales para la Municipalidad de Huancayo. Permite a
 
 ```
 backend/
-├── .env                        # Variables de entorno (DB, JWT, SMTP)
-├── requirements.txt            # Dependencias Python
-├── startup.sh                  # Script de inicio para producción (Azure)
+├── .env                        # Variables de entorno (DB, JWT, SMTP) - NO versionar
+├── .env.example                # Plantilla de variables de entorno
+├── .python-version             # Versión de Python fijada (3.12)
+├── pyproject.toml              # Dependencias y metadatos del proyecto
+├── uv.lock                     # Lockfile de dependencias (uv)
+├── setup.ps1                   # Script de setup automatizado
 ├── sql/
-│   ├── 001_schema.sql          # Creación de tablas
-│   ├── 002_seed.sql            # Datos de prueba
-│   ├── 003_migracion_responsable_cuadrilla.sql  # Migración (add responsable_id)
-│   └── todo_en_uno.sql         # Script completo (drop + create + seed)
+│   └── BDConDatosDePrueba.sql  # Script completo (drop + create + seed)
 └── app/
     ├── __init__.py
     ├── main.py                 # Punto de entrada FastAPI, CORS, routers
     ├── config.py               # Configuración desde .env
     ├── database.py             # Capa de BD (fetch_all, fetch_one, execute)
     ├── email_service.py        # Envío de OTP por SMTP (Gmail)
+    ├── utils.py                # Paginación y reglas de cuadrillas
     ├── middleware/
     │   └── auth.py             # JWT, bcrypt, dependencias de roles
     ├── schemas/
@@ -137,7 +138,8 @@ backend/
         ├── usuarios.py         # /api/usuarios/*
         ├── cuadrillas.py       # /api/cuadrillas/*
         ├── estadisticas.py     # /api/estadisticas/*
-        └── mapa.py             # /api/mapa/*
+        ├── contacto.py         # /api/contacto/*
+        └── mapa.py             # /api/mapa/* (no registrado en main.py)
 ```
 
 ### Base de Datos
@@ -711,33 +713,29 @@ Las rutas protegidas con `canActivate: [RoleGuard]`:
 Ejecutar el script completo en SQL Server Management Studio (SSMS):
 
 ```
-backend/sql/todo_en_uno.sql
+backend/sql/BDConDatosDePrueba.sql
 ```
 
-Esto crea la base de datos (o usa `EcoReportDB` existente), elimina tablas si existen, crea las 4 tablas con sus constraints, e inserta datos de prueba.
+Esto crea la base de datos (o usa `EcoReportDB` existente), elimina tablas si existen, crea las 5 tablas con sus constraints, e inserta datos de prueba.
 
 ### Paso 2: Backend
+
+Requisito: tener [uv](https://docs.astral.sh/uv/) instalado (`winget install --id=astral-sh.uv -e`).
 
 ```bash
 cd backend
 
-# Crear entorno virtual (opcional pero recomendado)
-python -m venv venv
-.\venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Linux/Mac
-
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Instalar pyodbc (Windows)
-pip install pyodbc
+# Crear entorno .venv e instalar dependencias según uv.lock
+uv sync
 
 # Configurar .env (editar según tu entorno)
 # DB_SERVER, DB_NAME, DB_USER, DB_PASSWORD, DB_DRIVER
 
 # Iniciar servidor
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+El driver `pyodbc` se instala automáticamente en Windows y `pymssql` en Linux/Mac.
 
 El backend estará disponible en `http://localhost:8000`.
 Documentación interactiva (Swagger): `http://localhost:8000/docs`
@@ -786,10 +784,11 @@ Hay **40 reportes de ejemplo** distribuidos entre los 3 distritos (Huancayo, El 
 
 ### Producción (Azure App Service - Linux)
 
-El archivo `backend/startup.sh` contiene el comando de inicio:
+Comando de inicio (con `uv` y las dependencias ya sincronizadas en el servidor):
 
 ```bash
-gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000
+uv sync --frozen
+uv run gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000
 ```
 
 Para el frontend:
