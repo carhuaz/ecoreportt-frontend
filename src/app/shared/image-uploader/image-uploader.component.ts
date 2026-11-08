@@ -1,47 +1,57 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+
 
 @Component({
-  selector: 'app-image-uploader',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-image-uploader',
+    imports: [],
+    template: `
     <div class="image-uploader">
-      <div class="upload-area" *ngIf="imagenes.length < 3">
-        <input
-          type="file"
-          #fileInput
-          (change)="onFileSelected($event)"
-          accept=".jpg,.jpeg,.png,.webp"
-          style="display: none"
-        />
-        <div class="upload-box" (click)="fileInput.click()">
-          <div class="upload-icon">📸</div>
-          <p class="upload-text">Haz clic o arrastra imágenes aquí</p>
-          <p class="upload-hint">JPG, JPEG, PNG, WEBP • Máx 2 MB</p>
-        </div>
-      </div>
-
-      <div class="alert alert-warning" *ngIf="imagenes.length >= 3">
-        ℹ️ Solo puedes subir hasta 3 imágenes
-      </div>
-
-      <div *ngIf="errorMensaje" class="alert alert-error">
-        ⚠️ {{ errorMensaje }}
-      </div>
-
-      <div class="previews" *ngIf="imagenes.length > 0">
-        <h4>Imágenes cargadas ({{ imagenes.length }}/3)</h4>
-        <div class="preview-grid">
-          <div *ngFor="let imagen of imagenes; let i = index" class="preview-item">
-            <img [src]="imagen" alt="Previsualización">
-            <button type="button" class="btn-remove" (click)="removerImagen(i)">✕</button>
+      @if (imagenes.length < 3) {
+        <div class="upload-area">
+          <input
+            type="file"
+            #fileInput
+            (change)="onFileSelected($event)"
+            accept=".jpg,.jpeg,.png,.webp"
+            style="display: none"
+            />
+            <div class="upload-box" (click)="fileInput.click()">
+              <div class="upload-icon">📸</div>
+              <p class="upload-text">Haz clic o arrastra imágenes aquí</p>
+              <p class="upload-hint">JPG, JPEG, PNG, WEBP • Máx 2 MB</p>
+            </div>
           </div>
-        </div>
+        }
+    
+        @if (imagenes.length >= 3) {
+          <div class="alert alert-warning">
+            ℹ️ Solo puedes subir hasta 3 imágenes
+          </div>
+        }
+    
+        @if (errorMensaje) {
+          <div class="alert alert-error">
+            ⚠️ {{ errorMensaje }}
+          </div>
+        }
+    
+        @if (imagenes.length > 0) {
+          <div class="previews">
+            <h4>Imágenes cargadas ({{ imagenes.length }}/3)</h4>
+            <div class="preview-grid">
+              @for (imagen of imagenes; track imagen; let i = $index) {
+                <div class="preview-item">
+                  <img [src]="imagen" alt="Previsualización">
+                  <button type="button" class="btn-remove" (click)="removerImagen(i)">✕</button>
+                </div>
+              }
+            </div>
+          </div>
+        }
       </div>
-    </div>
-  `,
-  styles: [`
+    `,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styles: [`
     .image-uploader {
       width: 100%;
     }

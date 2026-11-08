@@ -12,7 +12,9 @@
     <div class="card-meta">
       <span>📍 {{ reporte.distrito }} — {{ reporte.direccion }}</span>
       <span>📅 {{ reporte.fecha }}</span>
-      <span *ngIf="reporte.ciudadano">👤 {{ reporte.ciudadano }}</span>
+      @if (reporte.ciudadano) {
+        <span>👤 {{ reporte.ciudadano }}</span>
+      }
     </div>
   </div>
 </div>

@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+
 import { ReporteService } from '../../services/reporte.service';
 
 interface Stat {
@@ -11,11 +11,11 @@ interface Stat {
 }
 
 @Component({
-  selector: 'app-estadisticas',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './estadisticas.component.html',
-  styleUrls: ['./estadisticas.component.css']
+    selector: 'app-estadisticas',
+    imports: [],
+    templateUrl: './estadisticas.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./estadisticas.component.css']
 })
 export class EstadisticasComponent implements OnInit {
   total = 0;

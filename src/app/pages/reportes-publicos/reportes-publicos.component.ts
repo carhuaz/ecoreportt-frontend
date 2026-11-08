@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Distrito, EstadoReporte, Reporte } from '../../models/reporte.model';
@@ -8,11 +8,11 @@ import { BadgeEstadoComponent } from '../../shared/badge-estado/badge-estado.com
 import { PaginacionComponent } from '../../shared/paginacion/paginacion.component';
 
 @Component({
-  selector: 'app-reportes-publicos',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, BadgeEstadoComponent, PaginacionComponent],
-  templateUrl: './reportes-publicos.component.html',
-  styleUrls: ['./reportes-publicos.component.css']
+    selector: 'app-reportes-publicos',
+    imports: [FormsModule, RouterLink, BadgeEstadoComponent, PaginacionComponent],
+    templateUrl: './reportes-publicos.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./reportes-publicos.component.css']
 })
 export class ReportesPublicosComponent implements OnInit {
   reportes: Reporte[] = [];

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsuarioService } from '../../services/usuario.service';
@@ -7,11 +7,11 @@ import { Usuario, RolUsuario } from '../../models/usuario.model';
 import { PaginacionComponent } from '../../shared/paginacion/paginacion.component';
 
 @Component({
-  selector: 'app-admin-usuarios',
-  standalone: true,
-  imports: [CommonModule, FormsModule, PaginacionComponent],
-  templateUrl: './admin-usuarios.component.html',
-  styleUrls: ['./admin-usuarios.component.css']
+    selector: 'app-admin-usuarios',
+    imports: [CommonModule, FormsModule, PaginacionComponent],
+    templateUrl: './admin-usuarios.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./admin-usuarios.component.css']
 })
 export class AdminUsuariosComponent implements OnInit {
   usuarios: Usuario[] = [];

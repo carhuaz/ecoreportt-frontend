@@ -13,27 +13,31 @@
   <!-- Barras -->
   <div class="stats-container">
     <h2>Distribución por estado</h2>
-    <div class="stat-row" *ngFor="let s of stats">
-      <div class="stat-info">
-        <span class="stat-label">{{ s.label }}</span>
-        <span class="stat-valor" [style.color]="s.color">{{ s.valor }}</span>
-      </div>
-      <div class="barra-fondo">
-        <div
-          class="barra-relleno"
-          [style.width.%]="s.porcentaje"
-          [style.background]="s.color">
+    @for (s of stats; track s) {
+      <div class="stat-row">
+        <div class="stat-info">
+          <span class="stat-label">{{ s.label }}</span>
+          <span class="stat-valor" [style.color]="s.color">{{ s.valor }}</span>
         </div>
+        <div class="barra-fondo">
+          <div
+            class="barra-relleno"
+            [style.width.%]="s.porcentaje"
+            [style.background]="s.color">
+          </div>
+        </div>
+        <span class="stat-pct">{{ s.porcentaje }}%</span>
       </div>
-      <span class="stat-pct">{{ s.porcentaje }}%</span>
-    </div>
+    }
   </div>
 
   <!-- Cards resumen -->
   <div class="stats-grid">
-    <div class="stat-card" *ngFor="let s of stats" [style.background]="s.bg">
-      <span class="stat-card-num" [style.color]="s.color">{{ s.valor }}</span>
-      <span class="stat-card-label">{{ s.label }}</span>
-    </div>
+    @for (s of stats; track s) {
+      <div class="stat-card" [style.background]="s.bg">
+        <span class="stat-card-num" [style.color]="s.color">{{ s.valor }}</span>
+        <span class="stat-card-label">{{ s.label }}</span>
+      </div>
+    }
   </div>
 </div>

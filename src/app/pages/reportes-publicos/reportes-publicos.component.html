@@ -8,17 +8,21 @@
 </section>
 
 <section class="reportes-page">
-  <div class="list-toolbar" *ngIf="total > 0">
-    <span class="toolbar-total">
-      Mostrando {{ desde }}–{{ hasta }} de <strong>{{ total }}</strong> reportes públicos
-    </span>
-    <label class="page-size-label">
-      Por página
-      <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
-        <option *ngFor="let s of pageSizes" [value]="s">{{ s }}</option>
-      </select>
-    </label>
-  </div>
+  @if (total > 0) {
+    <div class="list-toolbar">
+      <span class="toolbar-total">
+        Mostrando {{ desde }}–{{ hasta }} de <strong>{{ total }}</strong> reportes públicos
+      </span>
+      <label class="page-size-label">
+        Por página
+        <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+          @for (s of pageSizes; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </label>
+    </div>
+  }
 
   <div class="filters">
     <label>
@@ -47,33 +51,37 @@
   <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
 
   <div class="report-grid">
-    <article class="report-card" *ngFor="let reporte of reportesFiltrados">
-      <div class="report-image">
-        <img
-          [src]="reporte.imagenes[0] || '/images/reporte-basura-calle.jpg'"
-          [alt]="'Evidencia de ' + reporte.titulo"
-          loading="lazy"
-        >
-        <div class="card-top">
-          <span class="priority" [attr.data-priority]="reporte.prioridad">{{ reporte.prioridad }}</span>
-          <app-badge-estado [estado]="reporte.estado" />
-        </div>
-      </div>
-      <div class="report-content">
-        <h2>{{ reporte.titulo }}</h2>
-        <p>{{ reporte.descripcion }}</p>
-        <div class="meta">
-          <span><i class="bi bi-geo-alt"></i>{{ reporte.distrito }}</span>
-          <span><i class="bi bi-calendar3"></i>{{ reporte.fecha }}</span>
-        </div>
-        <small>{{ reporte.direccion }}</small>
-      </div>
-    </article>
-  </div>
+    @for (reporte of reportesFiltrados; track reporte) {
+      <article class="report-card">
+        <div class="report-image">
+          <img
+            [src]="reporte.imagenes[0] || '/images/reporte-basura-calle.jpg'"
+            [alt]="'Evidencia de ' + reporte.titulo"
+            loading="lazy"
+            >
+            <div class="card-top">
+              <span class="priority" [attr.data-priority]="reporte.prioridad">{{ reporte.prioridad }}</span>
+              <app-badge-estado [estado]="reporte.estado" />
+            </div>
+          </div>
+          <div class="report-content">
+            <h2>{{ reporte.titulo }}</h2>
+            <p>{{ reporte.descripcion }}</p>
+            <div class="meta">
+              <span><i class="bi bi-geo-alt"></i>{{ reporte.distrito }}</span>
+              <span><i class="bi bi-calendar3"></i>{{ reporte.fecha }}</span>
+            </div>
+            <small>{{ reporte.direccion }}</small>
+          </div>
+        </article>
+      }
+    </div>
 
-  <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+    <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
 
-  <div class="empty" *ngIf="reportesFiltrados.length === 0">
-    No existen reportes públicos que coincidan con esos filtros.
-  </div>
-</section>
+    @if (reportesFiltrados.length === 0) {
+      <div class="empty">
+        No existen reportes públicos que coincidan con esos filtros.
+      </div>
+    }
+  </section>

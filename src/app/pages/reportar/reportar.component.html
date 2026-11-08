@@ -6,8 +6,12 @@
       <p>Describe el punto crítico de basura para que sea atendido por las autoridades.</p>
     </div>
 
-    <div class="alert alert-error" *ngIf="error">{{ error }}</div>
-    <div class="alert alert-success" *ngIf="exito">✅ Reporte enviado correctamente. Redirigiendo...</div>
+    @if (error) {
+      <div class="alert alert-error">{{ error }}</div>
+    }
+    @if (exito) {
+      <div class="alert alert-success">✅ Reporte enviado correctamente. Redirigiendo...</div>
+    }
 
     <div class="form-group">
       <label for="titulo">Título del reporte <span class="req">*</span></label>
@@ -17,7 +21,7 @@
     <div class="form-group">
       <label for="descripcion">Descripción <span class="req">*</span></label>
       <textarea id="descripcion" [(ngModel)]="descripcion" rows="4"
-        placeholder="Describe el problema, cuánto tiempo lleva así, qué tipo de residuos hay..."></textarea>
+      placeholder="Describe el problema, cuánto tiempo lleva así, qué tipo de residuos hay..."></textarea>
     </div>
 
     <div class="form-group">
@@ -42,28 +46,31 @@
       </div>
 
       <div class="priority-grid">
-        <button
-          type="button"
-          class="priority-card"
-          *ngFor="let nivel of nivelesPrioridad"
-          [class.active]="prioridad === nivel.nombre"
-          [attr.data-priority]="nivel.nombre"
-          (click)="seleccionarPrioridad(nivel.nombre)"
-        >
-          <div class="priority-card-title">
-            <i class="bi" [ngClass]="nivel.icono"></i>
-            <strong>{{ nivel.nombre }}</strong>
-            <span>{{ nivel.puntaje }} pts.</span>
-          </div>
-          <p>{{ nivel.resumen }}</p>
-          <ul>
-            <li *ngFor="let ejemplo of nivel.ejemplos">{{ ejemplo }}</li>
-          </ul>
-          <span class="selection-mark">
-            <i class="bi bi-check-circle-fill"></i>
-            {{ prioridad === nivel.nombre ? 'Seleccionada' : 'Elegir nivel' }}
-          </span>
-        </button>
+        @for (nivel of nivelesPrioridad; track nivel) {
+          <button
+            type="button"
+            class="priority-card"
+            [class.active]="prioridad === nivel.nombre"
+            [attr.data-priority]="nivel.nombre"
+            (click)="seleccionarPrioridad(nivel.nombre)"
+            >
+            <div class="priority-card-title">
+              <i class="bi" [ngClass]="nivel.icono"></i>
+              <strong>{{ nivel.nombre }}</strong>
+              <span>{{ nivel.puntaje }} pts.</span>
+            </div>
+            <p>{{ nivel.resumen }}</p>
+            <ul>
+              @for (ejemplo of nivel.ejemplos; track ejemplo) {
+                <li>{{ ejemplo }}</li>
+              }
+            </ul>
+            <span class="selection-mark">
+              <i class="bi bi-check-circle-fill"></i>
+              {{ prioridad === nivel.nombre ? 'Seleccionada' : 'Elegir nivel' }}
+            </span>
+          </button>
+        }
       </div>
     </section>
 
@@ -80,27 +87,29 @@
         [longitud]="longitud"
         altura="350px"
         (ubicacionChange)="onUbicacionChange($event)"
-      />
-      <small *ngIf="latitud !== undefined && longitud !== undefined">
-        Coordenadas: {{ latitud | number:'1.5-5' }}, {{ longitud | number:'1.5-5' }}
-      </small>
-    </div>
+        />
+        @if (latitud !== undefined && longitud !== undefined) {
+          <small>
+            Coordenadas: {{ latitud | number:'1.5-5' }}, {{ longitud | number:'1.5-5' }}
+          </small>
+        }
+      </div>
 
-    <div class="form-group">
-      <label>Imágenes de evidencia <span class="req">*</span></label>
-      <app-image-uploader 
-        [imagenes]="imagenes" 
-        (imagenesChange)="onImagenesChange($event)">
-      </app-image-uploader>
-    </div>
+      <div class="form-group">
+        <label>Imágenes de evidencia <span class="req">*</span></label>
+        <app-image-uploader
+          [imagenes]="imagenes"
+          (imagenesChange)="onImagenesChange($event)">
+        </app-image-uploader>
+      </div>
 
-    <div class="form-group checkbox-group">
-      <label class="checkbox-label">
-        <input type="checkbox" [(ngModel)]="anonimo" />
-        <span>Enviar como anónimo (no se mostrará tu nombre en el reporte)</span>
-      </label>
-    </div>
+      <div class="form-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="anonimo" />
+          <span>Enviar como anónimo (no se mostrará tu nombre en el reporte)</span>
+        </label>
+      </div>
 
-    <button class="btn-submit" (click)="enviar()">Enviar reporte</button>
+      <button class="btn-submit" (click)="enviar()">Enviar reporte</button>
+    </div>
   </div>
-</div>

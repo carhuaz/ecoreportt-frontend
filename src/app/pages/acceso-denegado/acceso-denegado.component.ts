@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-acceso-denegado',
-  standalone: true,
-  imports: [RouterLink],
-  template: `
+    selector: 'app-acceso-denegado',
+    imports: [RouterLink],
+    template: `
     <div class="acceso-denegado-page">
       <div class="acceso-denegado-container">
         <div class="icon">🔒</div>
@@ -19,7 +18,8 @@ import { RouterLink } from '@angular/router';
       </div>
     </div>
   `,
-  styles: [`
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styles: [`
     .acceso-denegado-page {
       min-height: 100vh;
       display: flex;

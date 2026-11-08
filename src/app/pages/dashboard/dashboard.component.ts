@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
 import { Reporte } from '../../models/reporte.model';
@@ -8,11 +8,11 @@ import { EcoMapComponent } from '../../shared/eco-map/eco-map.component';
 import { PaginacionComponent } from '../../shared/paginacion/paginacion.component';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [CommonModule, FormsModule, CardReporteComponent, EcoMapComponent, PaginacionComponent],
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+    selector: 'app-dashboard',
+    imports: [FormsModule, CardReporteComponent, EcoMapComponent, PaginacionComponent],
+    templateUrl: './dashboard.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
   reportes: Reporte[] = [];

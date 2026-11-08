@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
 import { CuadrillaService } from '../../services/cuadrilla.service';
@@ -21,11 +21,11 @@ interface EvidenciaItem {
 }
 
 @Component({
-  selector: 'app-admin-auditoria',
-  standalone: true,
-  imports: [CommonModule, FormsModule, BadgeEstadoComponent, PaginacionComponent],
-  templateUrl: './admin-auditoria.component.html',
-  styleUrls: ['./admin-auditoria.component.css']
+    selector: 'app-admin-auditoria',
+    imports: [FormsModule, BadgeEstadoComponent, PaginacionComponent],
+    templateUrl: './admin-auditoria.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./admin-auditoria.component.css']
 })
 export class AdminAuditoriaComponent implements OnInit {
   items: EvidenciaItem[] = [];

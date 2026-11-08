@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Reporte } from '../../models/reporte.model';
 import { ReporteService } from '../../services/reporte.service';
 import { EcoMapComponent } from '../../shared/eco-map/eco-map.component';
 
 @Component({
-  selector: 'app-mapa-ambiental',
-  standalone: true,
-  imports: [CommonModule, RouterLink, EcoMapComponent],
-  templateUrl: './mapa-ambiental.component.html',
-  styleUrls: ['./mapa-ambiental.component.css']
+    selector: 'app-mapa-ambiental',
+    imports: [CommonModule, RouterLink, EcoMapComponent],
+    templateUrl: './mapa-ambiental.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./mapa-ambiental.component.css']
 })
 export class MapaAmbientalComponent implements OnInit {
   reportes: Reporte[] = [];

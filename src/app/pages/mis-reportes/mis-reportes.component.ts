@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ReporteService } from '../../services/reporte.service';
@@ -8,11 +8,11 @@ import { CardReporteComponent } from '../../shared/card-reporte/card-reporte.com
 import { PaginacionComponent } from '../../shared/paginacion/paginacion.component';
 
 @Component({
-  selector: 'app-mis-reportes',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CardReporteComponent, PaginacionComponent],
-  templateUrl: './mis-reportes.component.html',
-  styleUrls: ['./mis-reportes.component.css']
+    selector: 'app-mis-reportes',
+    imports: [FormsModule, RouterLink, CardReporteComponent, PaginacionComponent],
+    templateUrl: './mis-reportes.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./mis-reportes.component.css']
 })
 export class MisReportesComponent implements OnInit {
   reportes: Reporte[] = [];

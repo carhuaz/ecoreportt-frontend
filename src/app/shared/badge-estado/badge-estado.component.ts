@@ -1,12 +1,12 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-badge-estado',
-  standalone: true,
-  imports: [CommonModule],
-  template: `<span class="badge" [ngClass]="clase">{{ estado }}</span>`,
-  styles: [`
+    selector: 'app-badge-estado',
+    imports: [CommonModule],
+    template: `<span class="badge" [ngClass]="clase">{{ estado }}</span>`,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styles: [`
     .badge {
       display: inline-block;
       padding: 0.25rem 0.75rem;

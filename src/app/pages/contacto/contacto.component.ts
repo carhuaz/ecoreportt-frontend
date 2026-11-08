@@ -1,15 +1,15 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Component({
-  selector: 'app-contacto',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './contacto.component.html',
-  styleUrls: ['./contacto.component.css']
+    selector: 'app-contacto',
+    imports: [FormsModule],
+    templateUrl: './contacto.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./contacto.component.css']
 })
 export class ContactoComponent {
   private apiUrl = environment.apiUrl;

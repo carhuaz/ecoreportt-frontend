@@ -1,65 +1,90 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import {
+  FormField,
+  FormRoot,
+  email,
+  form,
+  maxLength,
+  minLength,
+  pattern,
+  required,
+  validate
+} from '@angular/forms/signals';
 import { RouterLink, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { firstValueFrom } from 'rxjs';
+
 import { AuthService } from '../../services/auth.service';
+
+interface RegisterModel {
+  nombre: string;
+  email: string;
+  dni: string;
+  password: string;
+  confirmPassword: string;
+}
 
 @Component({
   selector: 'app-register',
-  standalone: true,
-  imports: [FormsModule, RouterLink, CommonModule],
+  imports: [FormField, FormRoot, RouterLink],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-  nombre = '';
-  email = '';
-  dni = '';
-  password = '';
-  confirmPassword = '';
-  error = '';
-  exito = false;
-  cargando = false;
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(private router: Router, private authService: AuthService) {}
+  readonly registerModel = signal<RegisterModel>({
+    nombre: '',
+    email: '',
+    dni: '',
+    password: '',
+    confirmPassword: ''
+  });
 
-  registrar(): void {
-    this.error = '';
+  readonly registerForm = form(this.registerModel, path => {
+    required(path.nombre, { message: 'Ingresa tu nombre completo.' });
 
-    if (!this.nombre || !this.email || !this.dni || !this.password || !this.confirmPassword) {
-      this.error = 'Completa todos los campos.';
-      return;
-    }
+    required(path.email, { message: 'Ingresa tu correo.' });
+    email(path.email, { message: 'Ingresa un correo válido.' });
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
-      this.error = 'Ingresa un correo electrónico válido.';
-      return;
-    }
+    required(path.dni, { message: 'Ingresa tu DNI.' });
+    maxLength(path.dni, 8, { message: 'El DNI debe tener exactamente 8 dígitos.' });
+    pattern(path.dni, /^\d{8}$/, { message: 'El DNI debe tener exactamente 8 dígitos.' });
 
-    if (this.dni.length !== 8 || !/^\d{8}$/.test(this.dni)) {
-      this.error = 'El DNI debe tener exactamente 8 dígitos numéricos.';
-      return;
-    }
+    required(path.password, { message: 'Ingresa una contraseña.' });
+    minLength(path.password, 6, { message: 'La contraseña debe tener al menos 6 caracteres.' });
 
-    if (this.password.length < 6) {
-      this.error = 'La contraseña debe tener al menos 6 caracteres.';
-      return;
-    }
-
-    if (this.password !== this.confirmPassword) {
-      this.error = 'Las contraseñas no coinciden.';
-      return;
-    }
-
-    this.cargando = true;
-    this.authService.registrarUsuario(this.nombre, this.email, this.password, this.dni).subscribe(ok => {
-      this.cargando = false;
-      if (!ok) {
-        this.error = 'Este correo electrónico o DNI ya está registrado.';
-        return;
+    required(path.confirmPassword, { message: 'Confirma tu contraseña.' });
+    validate(path.confirmPassword, ({ value, valueOf }) => {
+      if (value() !== valueOf(path.password)) {
+        return {
+          kind: 'passwordMismatch',
+          message: 'Las contraseñas no coinciden.'
+        };
       }
-      this.exito = true;
-      setTimeout(() => this.router.navigate(['/verify', { email: this.email }]), 1500);
+      return null;
     });
-  }
+  }, {
+    submission: {
+      action: async () => {
+        this.serverError.set('');
+
+        const { nombre, email, dni, password } = this.registerModel();
+        const res = await firstValueFrom(
+          this.authService.registrarUsuario(nombre, email, password, dni)
+        );
+
+        if (!res.ok) {
+          this.serverError.set(res.mensaje || 'No se pudo registrar la cuenta.');
+          return;
+        }
+
+        this.exito.set(true);
+        setTimeout(() => this.router.navigate(['/verify', { email, cooldown: 60 }]), 1500);
+      }
+    }
+  });
+
+  readonly serverError = signal('');
+  readonly exito = signal(false);
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CuadrillaService } from '../../services/cuadrilla.service';
@@ -9,11 +9,11 @@ import { BadgeEstadoComponent } from '../../shared/badge-estado/badge-estado.com
 import { ImageUploaderComponent } from '../../shared/image-uploader/image-uploader.component';
 
 @Component({
-  selector: 'app-mis-cuadrillas',
-  standalone: true,
-  imports: [CommonModule, FormsModule, BadgeEstadoComponent, ImageUploaderComponent],
-  templateUrl: './mis-cuadrillas.component.html',
-  styleUrls: ['./mis-cuadrillas.component.css']
+    selector: 'app-mis-cuadrillas',
+    imports: [CommonModule, FormsModule, BadgeEstadoComponent, ImageUploaderComponent],
+    templateUrl: './mis-cuadrillas.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./mis-cuadrillas.component.css']
 })
 export class MisCuadrillasComponent implements OnInit {
   cuadrillas: Cuadrilla[] = [];

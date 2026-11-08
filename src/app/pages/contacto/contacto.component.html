@@ -29,14 +29,18 @@
       </div>
     </div>
 
-    <div class="alert alert-error" *ngIf="error">{{ error }}</div>
-    <div class="success-box" *ngIf="codigoAtencion">
-      <i class="bi bi-check-circle"></i>
-      <div>
-        <strong>Mensaje registrado</strong>
-        <span>Tu código de atención es {{ codigoAtencion }}</span>
+    @if (error) {
+      <div class="alert alert-error">{{ error }}</div>
+    }
+    @if (codigoAtencion) {
+      <div class="success-box">
+        <i class="bi bi-check-circle"></i>
+        <div>
+          <strong>Mensaje registrado</strong>
+          <span>Tu código de atención es {{ codigoAtencion }}</span>
+        </div>
       </div>
-    </div>
+    }
 
     <label>
       Nombre completo

@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
 import { CuadrillaService } from '../../services/cuadrilla.service';
@@ -23,11 +23,11 @@ interface ModalCuadrilla {
 }
 
 @Component({
-  selector: 'app-cuadrillas',
-  standalone: true,
-  imports: [CommonModule, FormsModule, BadgeEstadoComponent, ModalConfirmacionComponent, PaginacionComponent],
-  templateUrl: './cuadrillas.component.html',
-  styleUrls: ['./cuadrillas.component.css']
+    selector: 'app-cuadrillas',
+    imports: [FormsModule, BadgeEstadoComponent, ModalConfirmacionComponent, PaginacionComponent],
+    templateUrl: './cuadrillas.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./cuadrillas.component.css']
 })
 export class CuadrillasComponent implements OnInit {
   reportesAprobados: Reporte[] = [];

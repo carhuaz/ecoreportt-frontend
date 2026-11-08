@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -17,11 +17,11 @@ interface NivelPrioridad {
 }
 
 @Component({
-  selector: 'app-reportar',
-  standalone: true,
-  imports: [FormsModule, CommonModule, ImageUploaderComponent, EcoMapComponent],
-  templateUrl: './reportar.component.html',
-  styleUrls: ['./reportar.component.css']
+    selector: 'app-reportar',
+    imports: [FormsModule, CommonModule, ImageUploaderComponent, EcoMapComponent],
+    templateUrl: './reportar.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styleUrls: ['./reportar.component.css']
 })
 export class ReportarComponent {
   titulo = '';
