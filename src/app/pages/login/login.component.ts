@@ -1,50 +1,65 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { FormField, FormRoot, email, form, required } from '@angular/forms/signals';
 import { RouterLink, Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 
+interface LoginModel {
+  email: string;
+  password: string;
+}
+
 @Component({
-    selector: 'app-login',
-    imports: [FormsModule, RouterLink],
-    templateUrl: './login.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrls: ['./login.component.css']
+  selector: 'app-login',
+  imports: [FormField, FormRoot, RouterLink],
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  email = '';
-  password = '';
-  error = '';
-  exito = false;
-  cargando = false;
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(private authService: AuthService, private router: Router) {}
+  readonly loginModel = signal<LoginModel>({
+    email: '',
+    password: ''
+  });
 
-  get noVerificado(): boolean {
-    return this.error === 'no_verificado';
-  }
+  readonly loginForm = form(this.loginModel, path => {
+    required(path.email, { message: 'Ingresa tu correo.' });
+    email(path.email, { message: 'Ingresa un correo válido.' });
+    required(path.password, { message: 'Ingresa tu contraseña.' });
+  }, {
+    submission: {
+      action: async () => {
+        this.serverError.set('');
+        this.noVerificado.set(false);
 
-  ingresar(): void {
-    this.error = '';
-    if (!this.email || !this.password) {
-      this.error = 'Completa todos los campos.';
-      return;
-    }
-    this.cargando = true;
-    this.authService.login(this.email, this.password).subscribe(res => {
-      this.cargando = false;
-      if (res.ok) {
-        this.exito = true;
+        const { email, password } = this.loginModel();
+        const res = await firstValueFrom(this.authService.login(email, password));
+
+        if (!res.ok) {
+          if (res.noVerificado) {
+            this.noVerificado.set(true);
+            return;
+          }
+          this.serverError.set(
+            res.mensaje || 'Correo o contraseña incorrectos, o el usuario está inactivo.'
+          );
+          return;
+        }
+
+        this.exito.set(true);
         setTimeout(() => this.router.navigate([this.authService.obtenerRutaInicial()]), 700);
-      } else if (res.noVerificado) {
-        this.error = 'no_verificado';
-      } else {
-        this.error = res.mensaje || 'Correo o contraseña incorrectos, o el usuario está inactivo.';
       }
-    });
-  }
+    }
+  });
+
+  readonly serverError = signal('');
+  readonly noVerificado = signal(false);
+  readonly exito = signal(false);
 
   irAVerificar(): void {
-    this.router.navigate(['/verify', { email: this.email }]);
+    this.router.navigate(['/verify', { email: this.loginModel().email }]);
   }
 }

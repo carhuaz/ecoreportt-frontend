@@ -4,30 +4,44 @@
     <h2>Iniciar sesión</h2>
     <p class="auth-sub">EcoReport Huancayo</p>
 
-    @if (error && error !== 'no_verificado') {
-      <div class="alert alert-error">{{ error }}</div>
+    @if (serverError()) {
+      <div class="alert alert-error">{{ serverError() }}</div>
     }
-    @if (noVerificado) {
+    @if (noVerificado()) {
       <div class="alert alert-warn">
         ⚠️ Esta cuenta aún no está verificada. Revisa tu correo o solicita un nuevo código.
-        <button class="btn-link" (click)="irAVerificar()">Ir a verificar</button>
+        <button class="btn-link" type="button" (click)="irAVerificar()">Ir a verificar</button>
       </div>
     }
-    @if (exito) {
+    @if (exito()) {
       <div class="alert alert-success">✅ Inicio de sesión exitoso. Redirigiendo...</div>
     }
 
-    <div class="form-group">
-      <label for="email">Correo electrónico</label>
-      <input id="email" type="email" [(ngModel)]="email" placeholder="tu@correo.com" />
-    </div>
+    <form [formRoot]="loginForm">
+      <div class="form-group">
+        <label for="email">Correo electrónico</label>
+        <input id="email" type="email" [formField]="loginForm.email" placeholder="tu@correo.com" />
+        @if (loginForm.email().touched() && loginForm.email().invalid()) {
+          @for (error of loginForm.email().errors(); track error.kind) {
+            <small class="field-error">{{ error.message }}</small>
+          }
+        }
+      </div>
 
-    <div class="form-group">
-      <label for="password">Contraseña</label>
-      <input id="password" type="password" [(ngModel)]="password" placeholder="••••••" />
-    </div>
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input id="password" type="password" [formField]="loginForm.password" placeholder="••••••" />
+        @if (loginForm.password().touched() && loginForm.password().invalid()) {
+          @for (error of loginForm.password().errors(); track error.kind) {
+            <small class="field-error">{{ error.message }}</small>
+          }
+        }
+      </div>
 
-    <button class="btn-submit" (click)="ingresar()">Ingresar</button>
+      <button class="btn-submit" type="submit" [disabled]="loginForm().submitting()">
+        {{ loginForm().submitting() ? 'Ingresando...' : 'Ingresar' }}
+      </button>
+    </form>
 
     <p class="auth-link">¿No tienes cuenta? <a routerLink="/registro">Regístrate aquí</a></p>
 

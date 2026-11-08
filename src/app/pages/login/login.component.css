@@ -67,6 +67,13 @@
   border-color: #16803c;
 }
 
+.field-error {
+  display: block;
+  margin-top: 0.35rem;
+  color: #dc2626;
+  font-size: 0.8rem;
+}
+
 .btn-submit {
   width: 100%;
   background: #16803c;
