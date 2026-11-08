@@ -8,11 +8,10 @@ import { BadgeEstadoComponent } from '../../shared/badge-estado/badge-estado.com
 import { PaginacionComponent } from '../../shared/paginacion/paginacion.component';
 
 @Component({
-  selector: 'app-reportes-publicos',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, BadgeEstadoComponent, PaginacionComponent],
-  templateUrl: './reportes-publicos.component.html',
-  styleUrls: ['./reportes-publicos.component.css']
+    selector: 'app-reportes-publicos',
+    imports: [CommonModule, FormsModule, RouterLink, BadgeEstadoComponent, PaginacionComponent],
+    templateUrl: './reportes-publicos.component.html',
+    styleUrls: ['./reportes-publicos.component.css']
 })
 export class ReportesPublicosComponent implements OnInit {
   reportes: Reporte[] = [];

@@ -11,11 +11,10 @@ interface Stat {
 }
 
 @Component({
-  selector: 'app-estadisticas',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './estadisticas.component.html',
-  styleUrls: ['./estadisticas.component.css']
+    selector: 'app-estadisticas',
+    imports: [CommonModule],
+    templateUrl: './estadisticas.component.html',
+    styleUrls: ['./estadisticas.component.css']
 })
 export class EstadisticasComponent implements OnInit {
   total = 0;

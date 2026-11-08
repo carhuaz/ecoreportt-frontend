@@ -4,11 +4,10 @@ import { Reporte } from '../../models/reporte.model';
 import { BadgeEstadoComponent } from '../badge-estado/badge-estado.component';
 
 @Component({
-  selector: 'app-card-reporte',
-  standalone: true,
-  imports: [CommonModule, BadgeEstadoComponent],
-  templateUrl: './card-reporte.component.html',
-  styleUrls: ['./card-reporte.component.css']
+    selector: 'app-card-reporte',
+    imports: [CommonModule, BadgeEstadoComponent],
+    templateUrl: './card-reporte.component.html',
+    styleUrls: ['./card-reporte.component.css']
 })
 export class CardReporteComponent {
   @Input() reporte!: Reporte;

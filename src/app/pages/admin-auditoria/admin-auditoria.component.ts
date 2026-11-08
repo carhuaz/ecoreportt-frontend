@@ -21,11 +21,10 @@ interface EvidenciaItem {
 }
 
 @Component({
-  selector: 'app-admin-auditoria',
-  standalone: true,
-  imports: [CommonModule, FormsModule, BadgeEstadoComponent, PaginacionComponent],
-  templateUrl: './admin-auditoria.component.html',
-  styleUrls: ['./admin-auditoria.component.css']
+    selector: 'app-admin-auditoria',
+    imports: [CommonModule, FormsModule, BadgeEstadoComponent, PaginacionComponent],
+    templateUrl: './admin-auditoria.component.html',
+    styleUrls: ['./admin-auditoria.component.css']
 })
 export class AdminAuditoriaComponent implements OnInit {
   items: EvidenciaItem[] = [];

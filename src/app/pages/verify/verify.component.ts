@@ -5,10 +5,9 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-verify',
-  standalone: true,
-  imports: [FormsModule, CommonModule],
-  template: `
+    selector: 'app-verify',
+    imports: [FormsModule, CommonModule],
+    template: `
 <div class="verify-page">
   <div class="verify-card">
     <div class="verify-icon">📧</div>
@@ -48,7 +47,7 @@ import { AuthService } from '../../services/auth.service';
   </div>
 </div>
   `,
-  styles: [`
+    styles: [`
     .verify-page {
       min-height: calc(100vh - 130px);
       display: flex;

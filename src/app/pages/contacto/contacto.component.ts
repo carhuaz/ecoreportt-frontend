@@ -5,11 +5,10 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Component({
-  selector: 'app-contacto',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './contacto.component.html',
-  styleUrls: ['./contacto.component.css']
+    selector: 'app-contacto',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './contacto.component.html',
+    styleUrls: ['./contacto.component.css']
 })
 export class ContactoComponent {
   private apiUrl = environment.apiUrl;

@@ -20,11 +20,10 @@ export interface UbicacionMapa {
 }
 
 @Component({
-  selector: 'app-eco-map',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './eco-map.component.html',
-  styleUrls: ['./eco-map.component.css']
+    selector: 'app-eco-map',
+    imports: [CommonModule],
+    templateUrl: './eco-map.component.html',
+    styleUrls: ['./eco-map.component.css']
 })
 export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('mapContainer', { static: true })

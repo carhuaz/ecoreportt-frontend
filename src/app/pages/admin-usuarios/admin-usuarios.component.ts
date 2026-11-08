@@ -7,11 +7,10 @@ import { Usuario, RolUsuario } from '../../models/usuario.model';
 import { PaginacionComponent } from '../../shared/paginacion/paginacion.component';
 
 @Component({
-  selector: 'app-admin-usuarios',
-  standalone: true,
-  imports: [CommonModule, FormsModule, PaginacionComponent],
-  templateUrl: './admin-usuarios.component.html',
-  styleUrls: ['./admin-usuarios.component.css']
+    selector: 'app-admin-usuarios',
+    imports: [CommonModule, FormsModule, PaginacionComponent],
+    templateUrl: './admin-usuarios.component.html',
+    styleUrls: ['./admin-usuarios.component.css']
 })
 export class AdminUsuariosComponent implements OnInit {
   usuarios: Usuario[] = [];

@@ -2,10 +2,9 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-image-uploader',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+    selector: 'app-image-uploader',
+    imports: [CommonModule],
+    template: `
     <div class="image-uploader">
       <div class="upload-area" *ngIf="imagenes.length < 3">
         <input
@@ -41,7 +40,7 @@ import { CommonModule } from '@angular/common';
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .image-uploader {
       width: 100%;
     }

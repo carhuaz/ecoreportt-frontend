@@ -2,11 +2,10 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-modal-confirmacion',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './modal-confirmacion.component.html',
-  styleUrls: ['./modal-confirmacion.component.css']
+    selector: 'app-modal-confirmacion',
+    imports: [CommonModule],
+    templateUrl: './modal-confirmacion.component.html',
+    styleUrls: ['./modal-confirmacion.component.css']
 })
 export class ModalConfirmacionComponent {
   @Input() visible = false;

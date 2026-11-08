@@ -9,11 +9,10 @@ import { EcoMapComponent } from '../../shared/eco-map/eco-map.component';
 import { PaginacionComponent } from '../../shared/paginacion/paginacion.component';
 
 @Component({
-  selector: 'app-validacion',
-  standalone: true,
-  imports: [CommonModule, FormsModule, BadgeEstadoComponent, EcoMapComponent, PaginacionComponent],
-  templateUrl: './validacion.component.html',
-  styleUrls: ['./validacion.component.css']
+    selector: 'app-validacion',
+    imports: [CommonModule, FormsModule, BadgeEstadoComponent, EcoMapComponent, PaginacionComponent],
+    templateUrl: './validacion.component.html',
+    styleUrls: ['./validacion.component.css']
 })
 export class ValidacionComponent implements OnInit {
   reportes: Reporte[] = [];

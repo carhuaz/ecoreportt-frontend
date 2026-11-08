@@ -5,11 +5,10 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [FormsModule, RouterLink, CommonModule],
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+    selector: 'app-register',
+    imports: [FormsModule, RouterLink, CommonModule],
+    templateUrl: './register.component.html',
+    styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
   nombre = '';

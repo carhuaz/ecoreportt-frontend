@@ -17,11 +17,10 @@ interface NivelPrioridad {
 }
 
 @Component({
-  selector: 'app-reportar',
-  standalone: true,
-  imports: [FormsModule, CommonModule, ImageUploaderComponent, EcoMapComponent],
-  templateUrl: './reportar.component.html',
-  styleUrls: ['./reportar.component.css']
+    selector: 'app-reportar',
+    imports: [FormsModule, CommonModule, ImageUploaderComponent, EcoMapComponent],
+    templateUrl: './reportar.component.html',
+    styleUrls: ['./reportar.component.css']
 })
 export class ReportarComponent {
   titulo = '';

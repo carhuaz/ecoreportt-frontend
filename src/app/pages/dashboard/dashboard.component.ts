@@ -8,11 +8,10 @@ import { EcoMapComponent } from '../../shared/eco-map/eco-map.component';
 import { PaginacionComponent } from '../../shared/paginacion/paginacion.component';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [CommonModule, FormsModule, CardReporteComponent, EcoMapComponent, PaginacionComponent],
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+    selector: 'app-dashboard',
+    imports: [CommonModule, FormsModule, CardReporteComponent, EcoMapComponent, PaginacionComponent],
+    templateUrl: './dashboard.component.html',
+    styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
   reportes: Reporte[] = [];

@@ -23,11 +23,10 @@ interface ModalCuadrilla {
 }
 
 @Component({
-  selector: 'app-cuadrillas',
-  standalone: true,
-  imports: [CommonModule, FormsModule, BadgeEstadoComponent, ModalConfirmacionComponent, PaginacionComponent],
-  templateUrl: './cuadrillas.component.html',
-  styleUrls: ['./cuadrillas.component.css']
+    selector: 'app-cuadrillas',
+    imports: [CommonModule, FormsModule, BadgeEstadoComponent, ModalConfirmacionComponent, PaginacionComponent],
+    templateUrl: './cuadrillas.component.html',
+    styleUrls: ['./cuadrillas.component.css']
 })
 export class CuadrillasComponent implements OnInit {
   reportesAprobados: Reporte[] = [];

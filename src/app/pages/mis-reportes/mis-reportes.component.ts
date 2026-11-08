@@ -8,11 +8,10 @@ import { CardReporteComponent } from '../../shared/card-reporte/card-reporte.com
 import { PaginacionComponent } from '../../shared/paginacion/paginacion.component';
 
 @Component({
-  selector: 'app-mis-reportes',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CardReporteComponent, PaginacionComponent],
-  templateUrl: './mis-reportes.component.html',
-  styleUrls: ['./mis-reportes.component.css']
+    selector: 'app-mis-reportes',
+    imports: [CommonModule, FormsModule, RouterLink, CardReporteComponent, PaginacionComponent],
+    templateUrl: './mis-reportes.component.html',
+    styleUrls: ['./mis-reportes.component.css']
 })
 export class MisReportesComponent implements OnInit {
   reportes: Reporte[] = [];
