@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { ReporteService } from '../../services/reporte.service';
 
@@ -14,6 +14,7 @@ interface Stat {
     selector: 'app-estadisticas',
     imports: [],
     templateUrl: './estadisticas.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./estadisticas.component.css']
 })
 export class EstadisticasComponent implements OnInit {

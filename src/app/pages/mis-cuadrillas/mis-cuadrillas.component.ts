@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CuadrillaService } from '../../services/cuadrilla.service';
@@ -12,6 +12,7 @@ import { ImageUploaderComponent } from '../../shared/image-uploader/image-upload
     selector: 'app-mis-cuadrillas',
     imports: [CommonModule, FormsModule, BadgeEstadoComponent, ImageUploaderComponent],
     templateUrl: './mis-cuadrillas.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./mis-cuadrillas.component.css']
 })
 export class MisCuadrillasComponent implements OnInit {

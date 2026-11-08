@@ -1,5 +1,5 @@
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Distrito, EstadoReporte, Reporte } from '../../models/reporte.model';
@@ -11,6 +11,7 @@ import { PaginacionComponent } from '../../shared/paginacion/paginacion.componen
     selector: 'app-reportes-publicos',
     imports: [FormsModule, RouterLink, BadgeEstadoComponent, PaginacionComponent],
     templateUrl: './reportes-publicos.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./reportes-publicos.component.css']
 })
 export class ReportesPublicosComponent implements OnInit {

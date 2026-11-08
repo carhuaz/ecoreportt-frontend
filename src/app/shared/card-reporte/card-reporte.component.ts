@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Reporte } from '../../models/reporte.model';
 import { BadgeEstadoComponent } from '../badge-estado/badge-estado.component';
@@ -7,6 +7,7 @@ import { BadgeEstadoComponent } from '../badge-estado/badge-estado.component';
     selector: 'app-card-reporte',
     imports: [CommonModule, BadgeEstadoComponent],
     templateUrl: './card-reporte.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./card-reporte.component.css']
 })
 export class CardReporteComponent {

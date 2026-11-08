@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
@@ -24,6 +24,7 @@ interface EvidenciaItem {
     selector: 'app-admin-auditoria',
     imports: [FormsModule, BadgeEstadoComponent, PaginacionComponent],
     templateUrl: './admin-auditoria.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./admin-auditoria.component.css']
 })
 export class AdminAuditoriaComponent implements OnInit {

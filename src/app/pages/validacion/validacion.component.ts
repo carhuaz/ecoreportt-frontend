@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
@@ -12,6 +12,7 @@ import { PaginacionComponent } from '../../shared/paginacion/paginacion.componen
     selector: 'app-validacion',
     imports: [CommonModule, FormsModule, BadgeEstadoComponent, EcoMapComponent, PaginacionComponent],
     templateUrl: './validacion.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./validacion.component.css']
 })
 export class ValidacionComponent implements OnInit {

@@ -1,5 +1,5 @@
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
@@ -8,6 +8,7 @@ import { environment } from '../../../environments/environment';
     selector: 'app-contacto',
     imports: [FormsModule],
     templateUrl: './contacto.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./contacto.component.css']
 })
 export class ContactoComponent {

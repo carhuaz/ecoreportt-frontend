@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
@@ -11,6 +11,7 @@ import { PaginacionComponent } from '../../shared/paginacion/paginacion.componen
     selector: 'app-dashboard',
     imports: [FormsModule, CardReporteComponent, EcoMapComponent, PaginacionComponent],
     templateUrl: './dashboard.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {

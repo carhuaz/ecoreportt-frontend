@@ -9,7 +9,8 @@ import {
   OnDestroy,
   Output,
   SimpleChanges,
-  ViewChild
+  ViewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import * as L from 'leaflet';
 import { Reporte } from '../../models/reporte.model';
@@ -23,6 +24,7 @@ export interface UbicacionMapa {
     selector: 'app-eco-map',
     imports: [],
     templateUrl: './eco-map.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./eco-map.component.css']
 })
 export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {

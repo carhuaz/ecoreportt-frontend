@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -51,6 +51,7 @@ import { AuthService } from '../../services/auth.service';
     </div>
   </div>
 `,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [`
     .verify-page {
       min-height: calc(100vh - 130px);

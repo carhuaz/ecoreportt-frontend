@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 
@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
     selector: 'app-register',
     imports: [FormsModule, RouterLink],
     templateUrl: './register.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
