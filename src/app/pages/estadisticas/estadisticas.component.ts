@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReporteService } from '../../services/reporte.service';
 
 interface Stat {
@@ -12,7 +12,7 @@ interface Stat {
 
 @Component({
     selector: 'app-estadisticas',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './estadisticas.component.html',
     styleUrls: ['./estadisticas.component.css']
 })

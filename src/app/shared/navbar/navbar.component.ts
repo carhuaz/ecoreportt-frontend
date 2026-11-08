@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { Usuario, RolUsuario } from '../../models/usuario.model';
@@ -13,7 +13,7 @@ interface MenuItem {
 
 @Component({
     selector: 'app-navbar',
-    imports: [RouterLink, RouterLinkActive, CommonModule],
+    imports: [RouterLink, RouterLinkActive],
     templateUrl: './navbar.component.html',
     styleUrls: ['./navbar.component.css']
 })

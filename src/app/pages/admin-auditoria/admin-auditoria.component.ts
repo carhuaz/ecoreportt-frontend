@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
 import { CuadrillaService } from '../../services/cuadrilla.service';
@@ -22,7 +22,7 @@ interface EvidenciaItem {
 
 @Component({
     selector: 'app-admin-auditoria',
-    imports: [CommonModule, FormsModule, BadgeEstadoComponent, PaginacionComponent],
+    imports: [FormsModule, BadgeEstadoComponent, PaginacionComponent],
     templateUrl: './admin-auditoria.component.html',
     styleUrls: ['./admin-auditoria.component.css']
 })

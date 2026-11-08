@@ -1,9 +1,9 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
     selector: 'app-paginacion',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './paginacion.component.html'
 })
 export class PaginacionComponent {

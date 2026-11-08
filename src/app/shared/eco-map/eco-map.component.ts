@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   AfterViewInit,
   Component,
@@ -21,7 +21,7 @@ export interface UbicacionMapa {
 
 @Component({
     selector: 'app-eco-map',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './eco-map.component.html',
     styleUrls: ['./eco-map.component.css']
 })

@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-register',
-    imports: [FormsModule, RouterLink, CommonModule],
+    imports: [FormsModule, RouterLink],
     templateUrl: './register.component.html',
     styleUrls: ['./register.component.css']
 })

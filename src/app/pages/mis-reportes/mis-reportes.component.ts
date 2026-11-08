@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ReporteService } from '../../services/reporte.service';
@@ -9,7 +9,7 @@ import { PaginacionComponent } from '../../shared/paginacion/paginacion.componen
 
 @Component({
     selector: 'app-mis-reportes',
-    imports: [CommonModule, FormsModule, RouterLink, CardReporteComponent, PaginacionComponent],
+    imports: [FormsModule, RouterLink, CardReporteComponent, PaginacionComponent],
     templateUrl: './mis-reportes.component.html',
     styleUrls: ['./mis-reportes.component.css']
 })

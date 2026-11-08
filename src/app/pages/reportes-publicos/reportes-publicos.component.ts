@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -9,7 +9,7 @@ import { PaginacionComponent } from '../../shared/paginacion/paginacion.componen
 
 @Component({
     selector: 'app-reportes-publicos',
-    imports: [CommonModule, FormsModule, RouterLink, BadgeEstadoComponent, PaginacionComponent],
+    imports: [FormsModule, RouterLink, BadgeEstadoComponent, PaginacionComponent],
     templateUrl: './reportes-publicos.component.html',
     styleUrls: ['./reportes-publicos.component.css']
 })

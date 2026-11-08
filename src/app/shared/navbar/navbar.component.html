@@ -9,30 +9,37 @@
   </button>
 
   <div class="navbar-content" [class.open]="menuAbierto">
-    <ul class="navbar-links" *ngIf="usuarioActual">
-      <li *ngFor="let item of menuItems">
-        <a [routerLink]="item.ruta" routerLinkActive="active" (click)="cerrarMenu()">
-          <span class="icon">{{ item.icon }}</span>
-          <span class="label">{{ item.label }}</span>
-        </a>
-      </li>
-    </ul>
+    @if (usuarioActual) {
+      <ul class="navbar-links">
+        @for (item of menuItems; track item) {
+          <li>
+            <a [routerLink]="item.ruta" routerLinkActive="active" (click)="cerrarMenu()">
+              <span class="icon">{{ item.icon }}</span>
+              <span class="label">{{ item.label }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
 
-    <ul class="navbar-links" *ngIf="!usuarioActual">
-      <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="cerrarMenu()">Inicio</a></li>
-      <li><a routerLink="/login" (click)="cerrarMenu()">Ingresar</a></li>
-      <li><a routerLink="/registro" (click)="cerrarMenu()">Registrarse</a></li>
-    </ul>
+    @if (!usuarioActual) {
+      <ul class="navbar-links">
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="cerrarMenu()">Inicio</a></li>
+        <li><a routerLink="/login" (click)="cerrarMenu()">Ingresar</a></li>
+        <li><a routerLink="/registro" (click)="cerrarMenu()">Registrarse</a></li>
+      </ul>
+    }
 
-    <div class="navbar-auth" *ngIf="usuarioActual">
-      <div class="user-info">
-        <span class="user-role" [class]="'role-' + usuarioActual.rol.toLowerCase()">
-          {{ usuarioActual.rol }}
-        </span>
-        <span class="user-name">{{ usuarioActual.nombre }}</span>
+    @if (usuarioActual) {
+      <div class="navbar-auth">
+        <div class="user-info">
+          <span class="user-role" [class]="'role-' + usuarioActual.rol.toLowerCase()">
+            {{ usuarioActual.rol }}
+          </span>
+          <span class="user-name">{{ usuarioActual.nombre }}</span>
+        </div>
+        <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
       </div>
-
-      <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
-    </div>
+    }
   </div>
 </nav>

@@ -4,12 +4,18 @@
     <h2>Iniciar sesión</h2>
     <p class="auth-sub">EcoReport Huancayo</p>
 
-    <div class="alert alert-error" *ngIf="error && error !== 'no_verificado'">{{ error }}</div>
-    <div class="alert alert-warn" *ngIf="noVerificado">
-      ⚠️ Esta cuenta aún no está verificada. Revisa tu correo o solicita un nuevo código.
-      <button class="btn-link" (click)="irAVerificar()">Ir a verificar</button>
-    </div>
-    <div class="alert alert-success" *ngIf="exito">✅ Inicio de sesión exitoso. Redirigiendo...</div>
+    @if (error && error !== 'no_verificado') {
+      <div class="alert alert-error">{{ error }}</div>
+    }
+    @if (noVerificado) {
+      <div class="alert alert-warn">
+        ⚠️ Esta cuenta aún no está verificada. Revisa tu correo o solicita un nuevo código.
+        <button class="btn-link" (click)="irAVerificar()">Ir a verificar</button>
+      </div>
+    }
+    @if (exito) {
+      <div class="alert alert-success">✅ Inicio de sesión exitoso. Redirigiendo...</div>
+    }
 
     <div class="form-group">
       <label for="email">Correo electrónico</label>

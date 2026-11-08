@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
 import { Reporte } from '../../models/reporte.model';
@@ -9,7 +9,7 @@ import { PaginacionComponent } from '../../shared/paginacion/paginacion.componen
 
 @Component({
     selector: 'app-dashboard',
-    imports: [CommonModule, FormsModule, CardReporteComponent, EcoMapComponent, PaginacionComponent],
+    imports: [FormsModule, CardReporteComponent, EcoMapComponent, PaginacionComponent],
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.css']
 })

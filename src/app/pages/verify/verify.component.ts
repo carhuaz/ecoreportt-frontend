@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-verify',
-    imports: [FormsModule, CommonModule],
+    imports: [FormsModule],
     template: `
 <div class="verify-page">
   <div class="verify-card">
@@ -16,10 +16,14 @@ import { AuthService } from '../../services/auth.service';
       Te enviamos un código de 6 dígitos a <strong>{{ email }}</strong>
     </p>
 
-    <div class="alert alert-error" *ngIf="error">{{ error }}</div>
-    <div class="alert alert-success" *ngIf="exito">
-      ✅ Cuenta verificada correctamente. Redirigiendo...
-    </div>
+    @if (error) {
+      <div class="alert alert-error">{{ error }}</div>
+    }
+    @if (exito) {
+      <div class="alert alert-success">
+        ✅ Cuenta verificada correctamente. Redirigiendo...
+      </div>
+    }
 
     <div class="codigo-inputs">
       <input
@@ -31,22 +35,22 @@ import { AuthService } from '../../services/auth.service';
         pattern="[0-9]{6}"
         (input)="onInput()"
         autocomplete="one-time-code"
-      />
+        />
+      </div>
+
+      <button class="btn-verify" (click)="verificar()" [disabled]="cargando || codigo.length !== 6">
+        {{ cargando ? 'Verificando...' : 'Verificar cuenta' }}
+      </button>
+
+      <p class="reenviar">
+        ¿No recibiste el código?
+        <a href="#" (click)="$event.preventDefault(); reenviar()">
+          {{ reenviando ? 'Reenviando...' : 'Reenviar código' }}
+        </a>
+      </p>
     </div>
-
-    <button class="btn-verify" (click)="verificar()" [disabled]="cargando || codigo.length !== 6">
-      {{ cargando ? 'Verificando...' : 'Verificar cuenta' }}
-    </button>
-
-    <p class="reenviar">
-      ¿No recibiste el código?
-      <a href="#" (click)="$event.preventDefault(); reenviar()">
-        {{ reenviando ? 'Reenviando...' : 'Reenviar código' }}
-      </a>
-    </p>
   </div>
-</div>
-  `,
+`,
     styles: [`
     .verify-page {
       min-height: calc(100vh - 130px);

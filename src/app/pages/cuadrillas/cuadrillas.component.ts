@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
 import { CuadrillaService } from '../../services/cuadrilla.service';
@@ -24,7 +24,7 @@ interface ModalCuadrilla {
 
 @Component({
     selector: 'app-cuadrillas',
-    imports: [CommonModule, FormsModule, BadgeEstadoComponent, ModalConfirmacionComponent, PaginacionComponent],
+    imports: [FormsModule, BadgeEstadoComponent, ModalConfirmacionComponent, PaginacionComponent],
     templateUrl: './cuadrillas.component.html',
     styleUrls: ['./cuadrillas.component.css']
 })
