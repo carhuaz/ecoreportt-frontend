@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
+import { AuthService } from '../../services/auth.service';
 import { Reporte } from '../../models/reporte.model';
 import { CardReporteComponent } from '../../shared/card-reporte/card-reporte.component';
 import { EcoMapComponent } from '../../shared/eco-map/eco-map.component';
@@ -27,6 +28,10 @@ export class DashboardComponent implements OnInit {
 
   readonly pageSizes = [5, 10, 20];
 
+  get esCiudadano(): boolean {
+    return this.authService.obtenerUsuarioActual()?.rol === 'Ciudadano';
+  }
+
   get desde(): number { return (this.page - 1) * this.pageSize + 1; }
   get hasta(): number { return Math.min(this.page * this.pageSize, this.total); }
   get contarEstado() {
@@ -37,7 +42,10 @@ export class DashboardComponent implements OnInit {
   get atendidos()   { return this.contarEstado('Atendido'); }
   get criticos()    { return this.porPrioridad.find(p => p.prioridad === 'Crítica')?.cantidad || 0; }
 
-  constructor(private reporteService: ReporteService) {}
+  constructor(
+    private reporteService: ReporteService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.cargarEstadisticas();
@@ -53,7 +61,11 @@ export class DashboardComponent implements OnInit {
   }
 
   cargar(): void {
-    this.reporteService.obtenerReportes({ page: this.page, page_size: this.pageSize }).subscribe(res => {
+    const peticion = this.esCiudadano
+      ? this.reporteService.obtenerReportesPorCiudadano(this.page, this.pageSize)
+      : this.reporteService.obtenerReportes({ page: this.page, page_size: this.pageSize });
+
+    peticion.subscribe(res => {
       this.reportes = res.items;
       this.total = res.total;
       this.totalPages = res.total_pages;

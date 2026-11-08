@@ -14,7 +14,7 @@
         Por página
         <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
           @for (s of pageSizes; track s) {
-            <option [value]="s">{{ s }}</option>
+            <option [ngValue]="s">{{ s }}</option>
           }
         </select>
       </label>

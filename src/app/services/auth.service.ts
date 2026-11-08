@@ -60,7 +60,7 @@ export class AuthService {
     return new Promise(resolve => {
       this.http.get<Usuario>(`${this.apiUrl}/auth/me`).subscribe({
         next: user => {
-          this.usuarioSubject.next(user);
+          this.usuarioSubject.next(this.mapUsuario(user));
           resolve();
         },
         error: () => {
@@ -72,22 +72,44 @@ export class AuthService {
   }
 
   private getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    const token = localStorage.getItem(this.tokenKey);
+    if (!token) return null;
+    if (this.tokenExpirado(token)) {
+      localStorage.removeItem(this.tokenKey);
+      return null;
+    }
+    return token;
+  }
+
+  private tokenExpirado(token: string): boolean {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return true;
+      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
+      const decoded = JSON.parse(atob(padded));
+      return typeof decoded.exp === 'number' && decoded.exp * 1000 <= Date.now();
+    } catch {
+      return true;
+    }
+  }
+
+  private mapUsuario(raw: any): Usuario {
+    return {
+      id: raw.id,
+      nombre: raw.nombre,
+      email: raw.email,
+      rol: raw.rol as Usuario['rol'],
+      activo: !!raw.activo,
+      fechaRegistro: raw.fechaRegistro || raw.fecha_registro || ''
+    };
   }
 
   login(email: string, password: string): Observable<AuthResult> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
       tap(res => {
         localStorage.setItem(this.tokenKey, res.token);
-        const usr = res as any;
-        this.usuarioSubject.next({
-          id: usr.id,
-          nombre: usr.nombre,
-          email: usr.email,
-          rol: usr.rol as Usuario['rol'],
-          activo: usr.activo,
-          fechaRegistro: usr.fecha_registro || ''
-        });
+        this.usuarioSubject.next(this.mapUsuario(res));
       }),
       map(() => ({ ok: true })),
       catchError(err => of(mapearErrorAuth(
@@ -103,7 +125,7 @@ export class AuthService {
   }
 
   estaAutenticado(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
+    return !!this.getToken();
   }
 
   obtenerUsuarioActual(): Usuario | null {

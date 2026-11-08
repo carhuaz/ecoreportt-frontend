@@ -1,7 +1,7 @@
 <div class="page-dashboard">
   <div class="page-header">
-    <h1>Dashboard de reportes</h1>
-    <p>Resumen general de reportes ciudadanos en Huancayo</p>
+    <h1>{{ esCiudadano ? 'Mis reportes' : 'Dashboard de reportes' }}</h1>
+    <p>{{ esCiudadano ? 'Consulta el estado de los reportes que registraste' : 'Resumen general de reportes ciudadanos en Huancayo' }}</p>
   </div>
 
   <!-- KPIs -->
@@ -35,7 +35,7 @@
 
   <!-- Lista de reportes -->
   <div class="reportes-section">
-    <h2>Reportes registrados</h2>
+    <h2>{{ esCiudadano ? 'Mis reportes registrados' : 'Reportes registrados' }}</h2>
 
     <div class="list-toolbar">
       @if (total > 0) {
@@ -47,7 +47,7 @@
         Por página
         <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
           @for (s of pageSizes; track s) {
-            <option [value]="s">{{ s }}</option>
+            <option [ngValue]="s">{{ s }}</option>
           }
         </select>
       </label>
