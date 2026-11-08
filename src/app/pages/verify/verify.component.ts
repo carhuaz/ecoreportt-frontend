@@ -1,58 +1,87 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import {
+  FormField,
+  FormRoot,
+  form,
+  maxLength,
+  pattern,
+  required
+} from '@angular/forms/signals';
 import { Router, ActivatedRoute } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
 
+interface VerifyModel {
+  codigo: string;
+}
+
 @Component({
-    selector: 'app-verify',
-    imports: [FormsModule],
-    template: `
+  selector: 'app-verify',
+  imports: [FormField, FormRoot],
+  template: `
 <div class="verify-page">
   <div class="verify-card">
     <div class="verify-icon">📧</div>
     <h2>Verifica tu cuenta</h2>
     <p class="verify-sub">
-      Te enviamos un código de 6 dígitos a <strong>{{ email }}</strong>
+      Te enviamos un código de 6 dígitos a <strong>{{ email() }}</strong>
     </p>
 
-    @if (error) {
-      <div class="alert alert-error">{{ error }}</div>
+    @if (serverError()) {
+      <div class="alert alert-error">{{ serverError() }}</div>
     }
-    @if (exito) {
+    @if (successMessage()) {
+      <div class="alert alert-success">{{ successMessage() }}</div>
+    }
+    @if (exito()) {
       <div class="alert alert-success">
         ✅ Cuenta verificada correctamente. Redirigiendo...
       </div>
     }
 
-    <div class="codigo-inputs">
-      <input
-        type="text"
-        [(ngModel)]="codigo"
-        placeholder="Ingresa el código"
-        maxlength="6"
-        inputmode="numeric"
-        pattern="[0-9]{6}"
-        (input)="onInput()"
-        autocomplete="one-time-code"
+    <form [formRoot]="verifyForm">
+      <div class="codigo-inputs">
+        <input
+          type="text"
+          [formField]="verifyForm.codigo"
+          placeholder="Ingresa el código"
+          inputmode="numeric"
+          autocomplete="one-time-code"
         />
+        @if (verifyForm.codigo().touched() && verifyForm.codigo().invalid()) {
+          @for (error of verifyForm.codigo().errors(); track error.kind) {
+            <small class="field-error">{{ error.message }}</small>
+          }
+        }
       </div>
 
-      <button class="btn-verify" (click)="verificar()" [disabled]="cargando || codigo.length !== 6">
-        {{ cargando ? 'Verificando...' : 'Verificar cuenta' }}
+      <button class="btn-verify" type="submit" [disabled]="verifyForm().submitting()">
+        {{ verifyForm().submitting() ? 'Verificando...' : 'Verificar cuenta' }}
       </button>
+    </form>
 
-      <p class="reenviar">
-        ¿No recibiste el código?
-        <a href="#" (click)="$event.preventDefault(); reenviar()">
-          {{ reenviando ? 'Reenviando...' : 'Reenviar código' }}
-        </a>
-      </p>
-    </div>
+    <p class="reenviar">
+      ¿No recibiste el código?
+      <button
+        type="button"
+        class="link-btn"
+        (click)="reenviar()"
+        [disabled]="reenviando() || cooldown() > 0"
+      >
+        @if (reenviando()) {
+          Reenviando...
+        } @else if (cooldown() > 0) {
+          Reenviar en {{ cooldown() }}s
+        } @else {
+          Reenviar código
+        }
+      </button>
+    </p>
   </div>
-`,
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styles: [`
+</div>
+  `,
+  styles: [`
     .verify-page {
       min-height: calc(100vh - 130px);
       display: flex;
@@ -96,6 +125,13 @@ import { AuthService } from '../../services/auth.service';
       border-color: #16803c;
     }
 
+    .field-error {
+      display: block;
+      margin-top: 0.35rem;
+      color: #dc2626;
+      font-size: 0.8rem;
+    }
+
     .btn-verify {
       width: 100%;
       background: #16803c;
@@ -116,12 +152,18 @@ import { AuthService } from '../../services/auth.service';
       font-size: 0.85rem;
       color: #6b7280;
     }
-    .reenviar a {
+    .link-btn {
+      background: none;
+      border: none;
+      padding: 0;
       color: #16803c;
+      font: inherit;
       font-weight: 600;
+      cursor: pointer;
       text-decoration: none;
     }
-    .reenviar a:hover { text-decoration: underline; }
+    .link-btn:hover:not(:disabled) { text-decoration: underline; }
+    .link-btn:disabled { color: #9ca3af; cursor: not-allowed; }
 
     .alert {
       padding: 0.75rem 1rem;
@@ -133,56 +175,112 @@ import { AuthService } from '../../services/auth.service';
     .alert-success { background: #dcfce7; color: #16803c; }
   `]
 })
-export class VerifyComponent implements OnInit {
-  email = '';
-  codigo = '';
-  error = '';
-  exito = false;
-  cargando = false;
-  reenviando = false;
+export class VerifyComponent implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private cooldownTimer?: ReturnType<typeof setInterval>;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService
-  ) {}
+  readonly email = signal('');
+  readonly verifyModel = signal<VerifyModel>({ codigo: '' });
+  readonly serverError = signal('');
+  readonly successMessage = signal('');
+  readonly exito = signal(false);
+  readonly reenviando = signal(false);
+  readonly cooldown = signal(0);
+
+  readonly verifyForm = form(this.verifyModel, path => {
+    required(path.codigo, { message: 'Ingresa el código.' });
+    maxLength(path.codigo, 6, { message: 'El código debe tener 6 dígitos.' });
+    pattern(path.codigo, /^\d{6}$/, { message: 'El código debe tener 6 dígitos.' });
+  }, {
+    submission: {
+      action: async () => {
+        this.serverError.set('');
+        this.successMessage.set('');
+        this.exito.set(false);
+
+        const res = await firstValueFrom(
+          this.authService.verificarCodigo(this.email(), this.verifyModel().codigo)
+        );
+
+        if (!res.ok) {
+          if (res.cooldownSegundos) {
+            this.iniciarCooldown(res.cooldownSegundos);
+          }
+          this.serverError.set(
+            res.mensaje || 'Código incorrecto. Revisa tu correo o solicita uno nuevo.'
+          );
+          return;
+        }
+
+        this.exito.set(true);
+        setTimeout(() => this.router.navigate(['/login']), 2000);
+      }
+    }
+  });
 
   ngOnInit(): void {
-    this.email = this.route.snapshot.params['email'] || '';
-    if (!this.email) {
+    const email = this.route.snapshot.params['email'] || '';
+    this.email.set(email);
+
+    if (!email) {
       this.router.navigate(['/login']);
+      return;
+    }
+
+    const cooldown = Number(this.route.snapshot.params['cooldown'] || 0);
+    if (cooldown > 0) {
+      this.iniciarCooldown(cooldown);
     }
   }
 
-  onInput(): void {
-    this.codigo = this.codigo.replace(/\D/g, '');
+  ngOnDestroy(): void {
+    this.detenerCooldown();
   }
 
-  verificar(): void {
-    if (this.codigo.length !== 6) return;
-    this.error = '';
-    this.cargando = true;
-    this.authService.verificarCodigo(this.email, this.codigo).subscribe(res => {
-      this.cargando = false;
-      if (!res.ok) {
-        this.error = res.mensaje || 'Código incorrecto. Revisa tu correo o solicita uno nuevo.';
-        return;
+  async reenviar(): Promise<void> {
+    if (this.reenviando() || this.cooldown() > 0) return;
+
+    this.reenviando.set(true);
+    this.serverError.set('');
+    this.successMessage.set('');
+
+    const res = await firstValueFrom(this.authService.reenviarCodigo(this.email()));
+    this.reenviando.set(false);
+
+    if (!res.ok) {
+      if (res.cooldownSegundos) {
+        this.iniciarCooldown(res.cooldownSegundos);
       }
-      this.exito = true;
-      setTimeout(() => this.router.navigate(['/login']), 2000);
-    });
+      this.serverError.set(res.mensaje || 'No se pudo reenviar el código. Intenta de nuevo.');
+      return;
+    }
+
+    this.verifyModel.set({ codigo: '' });
+    this.successMessage.set(res.mensaje || 'Código reenviado. Revisa tu correo.');
+    this.iniciarCooldown(60);
   }
 
-  reenviar(): void {
-    this.reenviando = true;
-    this.authService.reenviarCodigo(this.email).subscribe(res => {
-      this.reenviando = false;
-      if (res.ok) {
-        this.error = '';
-        alert(res.mensaje || 'Código reenviado a tu correo.');
-      } else {
-        this.error = res.mensaje || 'Error al reenviar. Intenta de nuevo.';
+  private iniciarCooldown(segundos: number): void {
+    this.detenerCooldown();
+    this.cooldown.set(Math.max(0, Math.floor(segundos)));
+
+    if (this.cooldown() === 0) return;
+
+    this.cooldownTimer = setInterval(() => {
+      const siguiente = this.cooldown() - 1;
+      this.cooldown.set(siguiente);
+      if (siguiente <= 0) {
+        this.detenerCooldown();
       }
-    });
+    }, 1000);
+  }
+
+  private detenerCooldown(): void {
+    if (this.cooldownTimer) {
+      clearInterval(this.cooldownTimer);
+      this.cooldownTimer = undefined;
+    }
   }
 }

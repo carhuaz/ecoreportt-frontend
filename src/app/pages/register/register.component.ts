@@ -80,7 +80,7 @@ export class RegisterComponent {
         }
 
         this.exito.set(true);
-        setTimeout(() => this.router.navigate(['/verify', { email }]), 1500);
+        setTimeout(() => this.router.navigate(['/verify', { email, cooldown: 60 }]), 1500);
       }
     }
   });
