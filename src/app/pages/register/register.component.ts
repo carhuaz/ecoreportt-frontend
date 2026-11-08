@@ -52,10 +52,10 @@ export class RegisterComponent {
     }
 
     this.cargando = true;
-    this.authService.registrarUsuario(this.nombre, this.email, this.password, this.dni).subscribe(ok => {
+    this.authService.registrarUsuario(this.nombre, this.email, this.password, this.dni).subscribe(res => {
       this.cargando = false;
-      if (!ok) {
-        this.error = 'Este correo electrónico o DNI ya está registrado.';
+      if (!res.ok) {
+        this.error = res.mensaje || 'Este correo electrónico o DNI ya está registrado.';
         return;
       }
       this.exito = true;

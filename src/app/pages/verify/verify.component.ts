@@ -162,10 +162,10 @@ export class VerifyComponent implements OnInit {
     if (this.codigo.length !== 6) return;
     this.error = '';
     this.cargando = true;
-    this.authService.verificarCodigo(this.email, this.codigo).subscribe(ok => {
+    this.authService.verificarCodigo(this.email, this.codigo).subscribe(res => {
       this.cargando = false;
-      if (!ok) {
-        this.error = 'Código incorrecto. Revisa tu correo o solicita uno nuevo.';
+      if (!res.ok) {
+        this.error = res.mensaje || 'Código incorrecto. Revisa tu correo o solicita uno nuevo.';
         return;
       }
       this.exito = true;
@@ -175,13 +175,13 @@ export class VerifyComponent implements OnInit {
 
   reenviar(): void {
     this.reenviando = true;
-    this.authService.reenviarCodigo(this.email).subscribe(ok => {
+    this.authService.reenviarCodigo(this.email).subscribe(res => {
       this.reenviando = false;
-      if (ok) {
+      if (res.ok) {
         this.error = '';
-        alert('Código reenviado a tu correo.');
+        alert(res.mensaje || 'Código reenviado a tu correo.');
       } else {
-        this.error = 'Error al reenviar. Intenta de nuevo.';
+        this.error = res.mensaje || 'Error al reenviar. Intenta de nuevo.';
       }
     });
   }

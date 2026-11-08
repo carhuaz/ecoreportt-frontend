@@ -39,7 +39,7 @@ export class LoginComponent {
       } else if (res.noVerificado) {
         this.error = 'no_verificado';
       } else {
-        this.error = 'Correo o contraseña incorrectos, o el usuario está inactivo.';
+        this.error = res.mensaje || 'Correo o contraseña incorrectos, o el usuario está inactivo.';
       }
     });
   }

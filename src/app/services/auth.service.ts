@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { Usuario } from '../models/usuario.model';
@@ -13,6 +13,34 @@ interface LoginResponse {
   activo: boolean;
   token: string;
   fecha_registro?: string;
+}
+
+export interface AuthResult {
+  ok: boolean;
+  mensaje?: string;
+  status?: number;
+  noVerificado?: boolean;
+  cooldownSegundos?: number;
+  intentosRestantes?: number;
+}
+
+export function mapearErrorAuth(err: unknown, fallback: string): AuthResult {
+  const status = err instanceof HttpErrorResponse ? err.status : 0;
+  const detail = err instanceof HttpErrorResponse && typeof err.error?.detail === 'string'
+    ? err.error.detail
+    : '';
+  const mensaje = detail || fallback;
+  const cooldown = /Espera\s+(\d+)\s+segundos/i.exec(mensaje);
+  const intentos = /Te quedan\s+(\d+)\s+intentos/i.exec(mensaje);
+
+  return {
+    ok: false,
+    status,
+    mensaje,
+    cooldownSegundos: cooldown ? Number(cooldown[1]) : undefined,
+    intentosRestantes: intentos ? Number(intentos[1]) : undefined,
+    noVerificado: status === 403 && /no verificada/i.test(mensaje)
+  };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -47,7 +75,7 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
-  login(email: string, password: string): Observable<{ ok: boolean; noVerificado?: boolean }> {
+  login(email: string, password: string): Observable<AuthResult> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
       tap(res => {
         localStorage.setItem(this.tokenKey, res.token);
@@ -62,12 +90,10 @@ export class AuthService {
         });
       }),
       map(() => ({ ok: true })),
-      catchError(err => {
-        if (err.status === 403 && err.error?.detail?.includes?.('no verificada')) {
-          return of({ ok: false, noVerificado: true });
-        }
-        return of({ ok: false });
-      })
+      catchError(err => of(mapearErrorAuth(
+        err,
+        'Correo o contraseña incorrectos, o el usuario está inactivo.'
+      )))
     );
   }
 
@@ -94,24 +120,24 @@ export class AuthService {
     }
   }
 
-  registrarUsuario(nombre: string, email: string, password: string, dni: string): Observable<boolean> {
-    return this.http.post(`${this.apiUrl}/auth/register`, { nombre, email, password, dni }).pipe(
-      map(() => true),
-      catchError(() => of(false))
+  registrarUsuario(nombre: string, email: string, password: string, dni: string): Observable<AuthResult> {
+    return this.http.post<{ mensaje?: string }>(`${this.apiUrl}/auth/register`, { nombre, email, password, dni }).pipe(
+      map(res => ({ ok: true, mensaje: res?.mensaje })),
+      catchError(err => of(mapearErrorAuth(err, 'No se pudo registrar la cuenta.')))
     );
   }
 
-  verificarCodigo(email: string, codigo: string): Observable<boolean> {
-    return this.http.post(`${this.apiUrl}/auth/verify`, { email, codigo }).pipe(
-      map(() => true),
-      catchError(() => of(false))
+  verificarCodigo(email: string, codigo: string): Observable<AuthResult> {
+    return this.http.post<{ mensaje?: string }>(`${this.apiUrl}/auth/verify`, { email, codigo }).pipe(
+      map(res => ({ ok: true, mensaje: res?.mensaje })),
+      catchError(err => of(mapearErrorAuth(err, 'Código incorrecto. Revisa tu correo o solicita uno nuevo.')))
     );
   }
 
-  reenviarCodigo(email: string): Observable<boolean> {
-    return this.http.post(`${this.apiUrl}/auth/reenviar-codigo`, { email, codigo: '' }).pipe(
-      map(() => true),
-      catchError(() => of(false))
+  reenviarCodigo(email: string): Observable<AuthResult> {
+    return this.http.post<{ mensaje?: string }>(`${this.apiUrl}/auth/reenviar-codigo`, { email, codigo: '' }).pipe(
+      map(res => ({ ok: true, mensaje: res?.mensaje })),
+      catchError(err => of(mapearErrorAuth(err, 'No se pudo reenviar el código. Intenta de nuevo.')))
     );
   }
 
