@@ -67,8 +67,8 @@ src/main.ts
 
 ## Entornos y API
 
-- `src/environments/environment.ts` (desarrollo) y `environment.prod.ts` (producción).
-- Ambos apuntan hoy a `http://localhost:8000/api`. **Antes de desplegar, cambiar `environment.prod.ts` a la URL real del backend.**
+- `src/environments/environment.ts` (desarrollo) apunta a `http://localhost:8000/api`.
+- `environment.prod.ts` usa `/api` y se aplica con `fileReplacements`; el backend debe quedar detrás del mismo origen o de un proxy inverso.
 - La API expone `/api/auth`, `/api/reportes`, `/api/usuarios`, `/api/cuadrillas`, `/api/estadisticas`, `/api/contacto`.
 
 ## Dominio (resumen)
@@ -81,8 +81,8 @@ src/main.ts
 
 ## Trampas del repo
 
-- `environment.prod.ts` sigue apuntando a `localhost`; no desplegar sin cambiarlo.
-- **No hay pruebas**: no existen archivos `*.spec.ts` pese a que `npm test` está configurado.
+- Angular 22 usa los builders de `@angular/build` (`application`, `dev-server`, `extract-i18n`, `karma`). No volver a `@angular-devkit/build-angular`, que está deprecado.
+- **No hay pruebas**: no existen archivos `*.spec.ts` pese a que `npm test` está configurado; `ng test` falla con `TS18003` hasta que se agregue al menos un spec.
 - Los logs `ng-serve.*.log` estaban versionados en la base grupal; ya fueron eliminados. No volver a agregarlos.
 - El endpoint `/api/mapa` del backend **no está registrado** en `main.py`; no asumir que responde.
 - El `README.md` todavía describe backend y frontend juntos; ahora son repos separados.
