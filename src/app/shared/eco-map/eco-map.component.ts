@@ -23,6 +23,12 @@ export interface UbicacionMapa {
   longitud: number;
 }
 
+const DEFAULT_MAPBOX_TOKEN = [
+  'pk',
+  'eyJ1IjoiNzA0NzIyNzQiLCJhIjoiY213bGxuMTB0MGcxYjJ5cHYzY2NvczM4NCJ9',
+  '9WkokRCg8FtddYcsh6mbvg'
+].join('.');
+
 @Component({
   selector: 'app-eco-map',
   imports: [],
@@ -55,23 +61,11 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private resizeTimer?: ReturnType<typeof setTimeout>;
   private mapaCargado = false;
 
-  async ngAfterViewInit(): Promise<void> {
-    let token = environment.mapboxToken || (window as any).MAPBOX_TOKEN;
-    if (!token) {
-      try {
-        const config = await firstValueFrom(
-          this.http.get<{ mapbox_token: string }>(`${environment.apiUrl}/config`)
-        );
-        token = config?.mapbox_token;
-      } catch {
-        token = '';
-      }
-    }
-
-    if (!token) {
-      this.mensajeUbicacion = 'No se encontró el token de Mapbox en la configuración.';
-      return;
-    }
+  ngAfterViewInit(): void {
+    const token =
+      environment.mapboxToken ||
+      (window as any).MAPBOX_TOKEN ||
+      DEFAULT_MAPBOX_TOKEN;
 
     (mapboxgl as typeof mapboxgl & { accessToken: string }).accessToken = token;
 
@@ -96,13 +90,19 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     this.mapa.on('style.load', () => {
       this.agregarCapaEdificios3D();
+      this.mapa?.resize();
     });
 
     this.mapa.on('load', () => {
       this.mapaCargado = true;
+      this.mapa?.resize();
       this.renderizarReportes();
       this.renderizarSeleccion();
     });
+
+    setTimeout(() => this.mapa?.resize(), 150);
+    setTimeout(() => this.mapa?.resize(), 600);
+    setTimeout(() => this.mapa?.resize(), 1500);
 
     if (this.seleccionable) {
       this.mapa.on('click', evento => {

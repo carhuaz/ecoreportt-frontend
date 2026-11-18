@@ -66,10 +66,31 @@
 
 .map-container {
   width: 100%;
-  min-height: 280px;
+  min-height: 320px;
   position: relative;
   background: #1e293b;
   z-index: 1;
+  display: block;
+}
+
+:host ::ng-deep .mapboxgl-map {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+:host ::ng-deep .mapboxgl-canvas-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+:host ::ng-deep .mapboxgl-canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .map-message {
