@@ -22,7 +22,7 @@
         Por página
         <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
           @for (s of pageSizes; track s) {
-            <option [value]="s">{{ s }}</option>
+            <option [ngValue]="s">{{ s }}</option>
           }
         </select>
       </label>
@@ -63,9 +63,9 @@
               <td>
                 <div class="asignar-grupo">
                   <select [(ngModel)]="seleccion[r.id]">
-                    <option [value]="undefined" disabled>Seleccionar cuadrilla</option>
+                    <option [ngValue]="null" disabled>Seleccionar cuadrilla</option>
                     @for (c of cuadrillas; track c) {
-                      <option [value]="c.id">{{ c.nombre }} – {{ c.zonaAsignada }}</option>
+                      <option [ngValue]="c.id">{{ c.nombre }} – {{ c.zonaAsignada }}</option>
                     }
                   </select>
                   <button class="btn-asignar" (click)="asignar(r.id)" [disabled]="!seleccion[r.id]">
@@ -132,9 +132,9 @@
       <div class="form-group">
         <label>Responsable (usuario)</label>
         <select [(ngModel)]="modal.responsable_id" (change)="onResponsableChange(modal.responsable_id)">
-          <option [value]="undefined">Seleccionar responsable</option>
+          <option [ngValue]="null">Seleccionar responsable</option>
           @for (u of responsables; track u) {
-            <option [value]="u.id">{{ u.nombre }} ({{ u.email }})</option>
+            <option [ngValue]="u.id">{{ u.nombre }} ({{ u.email }})</option>
           }
         </select>
       </div>

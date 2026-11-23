@@ -1,9 +1,12 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { forkJoin, Observable } from 'rxjs';
 import { CuadrillaService } from '../../services/cuadrilla.service';
 import { ReporteService } from '../../services/reporte.service';
 import { Cuadrilla } from '../../models/cuadrilla.model';
+import { Paginacion } from '../../models/paginacion.model';
 import { Reporte } from '../../models/reporte.model';
 import { BadgeEstadoComponent } from '../../shared/badge-estado/badge-estado.component';
 import { ImageUploaderComponent } from '../../shared/image-uploader/image-uploader.component';
@@ -39,13 +42,19 @@ export class MisCuadrillasComponent implements OnInit {
 
   cargar(): void {
     this.cargando = true;
-    this.cuadrillaService.obtenerMisCuadrillas().subscribe(data => {
-      this.cuadrillas = data;
-      if (data.length > 0) {
-        this.cuadrillaSeleccionada = data[0].id;
-        this.cargarReportes();
+    this.cuadrillaService.obtenerMisCuadrillas().subscribe({
+      next: data => {
+        this.cuadrillas = data;
+        if (data.length > 0) {
+          this.cuadrillaSeleccionada = data[0].id;
+          this.cargarReportes();
+        }
+        this.cargando = false;
+      },
+      error: (err: HttpErrorResponse) => {
+        this.cargando = false;
+        this.mostrarError(err, 'No se pudieron cargar tus cuadrillas.');
       }
-      this.cargando = false;
     });
   }
 
@@ -55,9 +64,32 @@ export class MisCuadrillasComponent implements OnInit {
   }
 
   cargarReportes(): void {
-    if (!this.cuadrillaSeleccionada) return;
-    this.reporteService.obtenerReportesPorCuadrilla(this.cuadrillaSeleccionada, undefined, 1, 100).subscribe(res => {
-      this.reportesPorCuadrilla[this.cuadrillaSeleccionada!] = res.items;
+    const cuadrillaId = this.cuadrillaSeleccionada;
+    if (!cuadrillaId) return;
+
+    const pageSize = 100;
+    this.reporteService.obtenerReportesPorCuadrilla(cuadrillaId, undefined, 1, pageSize).subscribe({
+      next: first => {
+        if (first.total_pages <= 1) {
+          this.reportesPorCuadrilla[cuadrillaId] = first.items;
+          return;
+        }
+
+        const paginas: Observable<Paginacion<Reporte>>[] = [];
+        for (let page = 2; page <= first.total_pages; page++) {
+          paginas.push(this.reporteService.obtenerReportesPorCuadrilla(cuadrillaId, undefined, page, pageSize));
+        }
+
+        forkJoin(paginas).subscribe({
+          next: results => {
+            this.reportesPorCuadrilla[cuadrillaId] = first.items.concat(
+              ...results.map(result => result.items)
+            );
+          },
+          error: (err: HttpErrorResponse) => this.mostrarError(err, 'No se pudieron cargar todos los reportes de la cuadrilla.')
+        });
+      },
+      error: (err: HttpErrorResponse) => this.mostrarError(err, 'No se pudieron cargar los reportes de la cuadrilla.')
     });
   }
 
@@ -79,14 +111,13 @@ export class MisCuadrillasComponent implements OnInit {
 
   marcarAtencion(reporte: Reporte): void {
     if (!confirm(`¿Iniciar atención del reporte "${reporte.titulo}"?`)) return;
-    this.reporteService.marcarEnAtencion(reporte.id, '').subscribe(ok => {
-      if (ok) {
+    this.reporteService.marcarEnAtencion(reporte.id, '').subscribe({
+      next: () => {
         this.mensajeExito = 'Atención iniciada';
         this.cargarReportes();
-      } else {
-        this.mensajeError = 'Error al iniciar atención';
-      }
-      setTimeout(() => { this.mensajeExito = ''; this.mensajeError = ''; }, 3000);
+        setTimeout(() => this.mensajeExito = '', 3000);
+      },
+      error: (err: HttpErrorResponse) => this.mostrarError(err, 'Error al iniciar atención.')
     });
   }
 
@@ -106,15 +137,21 @@ export class MisCuadrillasComponent implements OnInit {
 
   completarReporte(): void {
     if (!this.reporteACompletar) return;
-    this.reporteService.completarConEvidencias(this.reporteACompletar.id, this.evidencias, this.observacion).subscribe(ok => {
-      if (ok) {
+    this.reporteService.completarConEvidencias(this.reporteACompletar.id, this.evidencias, this.observacion).subscribe({
+      next: () => {
         this.mensajeExito = 'Reporte completado con evidencias';
         this.cerrarModalCompletar();
         this.cargarReportes();
-      } else {
-        this.mensajeError = 'Error al completar el reporte';
-      }
-      setTimeout(() => { this.mensajeExito = ''; this.mensajeError = ''; }, 3000);
+        setTimeout(() => this.mensajeExito = '', 3000);
+      },
+      error: (err: HttpErrorResponse) => this.mostrarError(err, 'Error al completar el reporte.')
     });
+  }
+
+  private mostrarError(err: HttpErrorResponse, fallback: string): void {
+    this.mensajeError = typeof err.error?.detail === 'string'
+      ? err.error.detail
+      : fallback;
+    setTimeout(() => this.mensajeError = '', 5000);
   }
 }

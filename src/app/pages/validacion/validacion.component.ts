@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
 import { AuthService } from '../../services/auth.service';
@@ -131,17 +132,24 @@ export class ValidacionComponent implements OnInit {
       ? this.reporteService.aprobarReporte(this.reporteSeleccionadoId, this.observacion || 'Reporte aprobado', validador)
       : this.reporteService.rechazarReporte(this.reporteSeleccionadoId, this.observacion, validador);
 
-    accion$.subscribe(exito => {
-      this.cargando = false;
-      if (exito) {
-        this.mensajeExito = this.accionPendiente === 'aprobar'
-          ? 'Reporte aprobado correctamente.'
-          : 'Reporte rechazado correctamente.';
-        setTimeout(() => this.mensajeExito = '', 3000);
+    accion$.subscribe({
+      next: exito => {
+        this.cargando = false;
+        if (exito) {
+          this.mensajeExito = this.accionPendiente === 'aprobar'
+            ? 'Reporte aprobado correctamente.'
+            : 'Reporte rechazado correctamente.';
+          setTimeout(() => this.mensajeExito = '', 3000);
+        }
+        this.cerrarModal();
+        this.cargarPendientes();
+        this.cargarProcesados();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.cargando = false;
+        this.mensajeError = err.error?.detail || 'No se pudo completar la acción.';
+        setTimeout(() => this.mensajeError = '', 4000);
       }
-      this.cerrarModal();
-      this.cargarPendientes();
-      this.cargarProcesados();
     });
   }
 

@@ -1,6 +1,7 @@
 /* ===========================
    EcoReport Huancayo - Global
    =========================== */
+@import "mapbox-gl/dist/mapbox-gl.css";
 
 :root {
   /* Colors Primary */

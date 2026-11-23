@@ -1,0 +1,45 @@
+name: Frontend CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "frontend" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Continuous Integration (Build & Validación)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Compilar aplicación (Angular 22 Production Build)
+        run: npx ng build --configuration production
+
+  deploy:
+    name: Continuous Deployment (Render)
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/frontend')
+
+    steps:
+      - name: Disparar Deploy Hook de Render
+        run: |
+          if [ -z "${{ secrets.RENDER_DEPLOY_HOOK }}" ]; then
+            echo "::warning ::RENDER_DEPLOY_HOOK no está configurado en GitHub Secrets aún. Saltando despliegue automático."
+          else
+            echo "Disparando despliegue de Frontend en Render..."
+            curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}" --fail
+            echo "Despliegue de Frontend solicitado exitosamente a Render."
+          fi

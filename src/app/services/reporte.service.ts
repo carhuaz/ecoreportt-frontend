@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Reporte } from '../models/reporte.model';
 import { Paginacion } from '../models/paginacion.model';
 import { environment } from '../../environments/environment';
@@ -113,8 +113,7 @@ export class ReporteService {
 
   completarConEvidencias(id: number, evidencias: string[], observacion: string): Observable<boolean> {
     return this.http.post(`${this.apiUrl}/reportes/${id}/completar-con-evidencias`, { evidencias, observacion }).pipe(
-      map(() => true),
-      catchError(() => of(false))
+      map(() => true)
     );
   }
 

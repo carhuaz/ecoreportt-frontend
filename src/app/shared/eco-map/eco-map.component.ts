@@ -1,4 +1,3 @@
-
 import {
   AfterViewInit,
   Component,
@@ -10,9 +9,13 @@ import {
   Output,
   SimpleChanges,
   ViewChild,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  inject
 } from '@angular/core';
-import * as L from 'leaflet';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import mapboxgl from 'mapbox-gl';
+import { environment } from '../../../environments/environment';
 import { Reporte } from '../../models/reporte.model';
 
 export interface UbicacionMapa {
@@ -20,14 +23,22 @@ export interface UbicacionMapa {
   longitud: number;
 }
 
+const DEFAULT_MAPBOX_TOKEN = [
+  'pk',
+  'eyJ1IjoiNzA0NzIyNzQiLCJhIjoiY213bGxuMTB0MGcxYjJ5cHYzY2NvczM4NCJ9',
+  '9WkokRCg8FtddYcsh6mbvg'
+].join('.');
+
 @Component({
-    selector: 'app-eco-map',
-    imports: [],
-    templateUrl: './eco-map.component.html',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    styleUrls: ['./eco-map.component.css']
+  selector: 'app-eco-map',
+  imports: [],
+  templateUrl: './eco-map.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./eco-map.component.css']
 })
 export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
+  private http = inject(HttpClient);
+
   @ViewChild('mapContainer', { static: true })
   private mapContainer!: ElementRef<HTMLDivElement>;
 
@@ -43,41 +54,67 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   mensajeUbicacion = '';
   buscandoUbicacion = false;
 
-  private mapa?: L.Map;
-  private capaReportes = L.layerGroup();
-  private marcadorSeleccion?: L.CircleMarker;
+  private mapa?: mapboxgl.Map;
+  private marcadoresReportes: mapboxgl.Marker[] = [];
+  private marcadorSeleccion?: mapboxgl.Marker;
   private resizeObserver?: ResizeObserver;
   private resizeTimer?: ReturnType<typeof setTimeout>;
+  private mapaCargado = false;
 
   ngAfterViewInit(): void {
-    this.mapa = L.map(this.mapContainer.nativeElement, {
-      center: [-12.0651, -75.2049],
-      zoom: 13,
-      zoomControl: true
+    const token =
+      environment.mapboxToken ||
+      (window as any).MAPBOX_TOKEN ||
+      DEFAULT_MAPBOX_TOKEN;
+
+    (mapboxgl as typeof mapboxgl & { accessToken: string }).accessToken = token;
+
+    const centroInicial: [number, number] =
+      this.longitud !== undefined && this.latitud !== undefined
+        ? [this.longitud, this.latitud]
+        : [-75.2049, -12.0651]; // Huancayo centro [lng, lat]
+
+    this.mapa = new mapboxgl.Map({
+      container: this.mapContainer.nativeElement,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: centroInicial,
+      zoom: 14,
+      pitch: 50, // Inclinación 3D estilo Rappi
+      bearing: -15,
+      antialias: true
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(this.mapa);
+    // Control de navegación con soporte para visualización de pitch 3D
+    this.mapa.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-right');
+    this.mapa.addControl(new mapboxgl.FullscreenControl(), 'top-right');
 
-    L.control.scale({ imperial: false }).addTo(this.mapa);
-    this.capaReportes.addTo(this.mapa);
+    this.mapa.on('style.load', () => {
+      this.agregarCapaEdificios3D();
+      this.mapa?.resize();
+    });
+
+    this.mapa.on('load', () => {
+      this.mapaCargado = true;
+      this.mapa?.resize();
+      this.renderizarReportes();
+      this.renderizarSeleccion();
+    });
+
+    setTimeout(() => this.mapa?.resize(), 150);
+    setTimeout(() => this.mapa?.resize(), 600);
+    setTimeout(() => this.mapa?.resize(), 1500);
 
     if (this.seleccionable) {
       this.mapa.on('click', evento => {
-        this.establecerUbicacion(evento.latlng.lat, evento.latlng.lng, true);
+        this.establecerUbicacion(evento.lngLat.lat, evento.lngLat.lng, true);
       });
     }
 
-    this.renderizarReportes();
-    this.renderizarSeleccion();
     this.observarCambiosDeTamano();
-    this.actualizarTamanoMapa();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!this.mapa) {
+    if (!this.mapa || !this.mapaCargado) {
       return;
     }
 
@@ -92,10 +129,11 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
-    window.removeEventListener('resize', this.actualizarTamanoMapa);
     if (this.resizeTimer) {
       clearTimeout(this.resizeTimer);
     }
+    this.limpiarMarcadores();
+    this.marcadorSeleccion?.remove();
     this.mapa?.remove();
   }
 
@@ -111,15 +149,18 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     navigator.geolocation.getCurrentPosition(
       posicion => {
         this.buscandoUbicacion = false;
-        this.establecerUbicacion(
-          posicion.coords.latitude,
-          posicion.coords.longitude,
-          true
-        );
-        this.mapa?.setView(
-          [posicion.coords.latitude, posicion.coords.longitude],
-          17
-        );
+        const lat = posicion.coords.latitude;
+        const lng = posicion.coords.longitude;
+
+        this.establecerUbicacion(lat, lng, true);
+
+        this.mapa?.flyTo({
+          center: [lng, lat],
+          zoom: 16.5,
+          pitch: 55,
+          duration: 1800,
+          essential: true
+        });
       },
       () => {
         this.buscandoUbicacion = false;
@@ -129,63 +170,103 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     );
   }
 
+  private agregarCapaEdificios3D(): void {
+    if (!this.mapa) {
+      return;
+    }
+
+    const layers = this.mapa.getStyle().layers;
+    const labelLayerId = layers?.find(l => l.type === 'symbol' && l.layout?.['text-field'])?.id;
+
+    if (!this.mapa.getLayer('add-3d-buildings')) {
+      this.mapa.addLayer(
+        {
+          id: 'add-3d-buildings',
+          source: 'composite',
+          'source-layer': 'building',
+          filter: ['==', 'extrude', 'true'],
+          type: 'fill-extrusion',
+          minzoom: 14,
+          paint: {
+            'fill-extrusion-color': '#d1d5db',
+            'fill-extrusion-height': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              14,
+              0,
+              15.05,
+              ['get', 'height']
+            ],
+            'fill-extrusion-base': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              14,
+              0,
+              15.05,
+              ['get', 'min_height']
+            ],
+            'fill-extrusion-opacity': 0.75
+          }
+        },
+        labelLayerId
+      );
+    }
+  }
+
   private renderizarReportes(): void {
     if (!this.mapa) {
       return;
     }
 
-    this.capaReportes.clearLayers();
-    const limites: L.LatLngExpression[] = [];
+    this.limpiarMarcadores();
+
+    if (this.reportes.length === 0) {
+      return;
+    }
+
+    const bounds = new mapboxgl.LngLatBounds();
+    let hayPuntosValidos = false;
 
     this.reportes.forEach(reporte => {
       if (reporte.latitud === undefined || reporte.longitud === undefined) {
         return;
       }
 
-      const coordenadas: L.LatLngExpression = [reporte.latitud, reporte.longitud];
-      const marcador = L.circleMarker(coordenadas, {
-        radius: 9,
-        color: '#ffffff',
-        weight: 3,
-        fillColor: this.obtenerColorEstado(reporte),
-        fillOpacity: 1
+      const color = this.obtenerColorEstado(reporte);
+      const el = document.createElement('div');
+      el.className = 'eco-pin-3d';
+      el.style.backgroundColor = color;
+      el.style.boxShadow = `0 0 12px ${color}88`;
+
+      const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setDOMContent(
+        this.crearContenidoPopup(reporte)
+      );
+
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([reporte.longitud, reporte.latitud])
+        .setPopup(popup)
+        .addTo(this.mapa!);
+
+      el.addEventListener('click', () => {
+        this.reporteSeleccionado.emit(reporte);
       });
 
-      marcador.bindPopup(this.crearContenidoPopup(reporte));
-      marcador.on('click', () => this.reporteSeleccionado.emit(reporte));
-      marcador.addTo(this.capaReportes);
-      limites.push(coordenadas);
+      this.marcadoresReportes.push(marker);
+      bounds.extend([reporte.longitud, reporte.latitud]);
+      hayPuntosValidos = true;
     });
 
-    if (limites.length > 0 && !this.seleccionable) {
-      this.mapa.fitBounds(L.latLngBounds(limites), {
-        padding: [35, 35],
-        maxZoom: 15
+    if (hayPuntosValidos && !this.seleccionable && this.reportes.length > 1) {
+      this.mapa.fitBounds(bounds, {
+        padding: 50,
+        maxZoom: 15.5,
+        pitch: 50,
+        duration: 1200
       });
     }
   }
-
-  private observarCambiosDeTamano(): void {
-    if (typeof ResizeObserver === 'undefined') {
-      window.addEventListener('resize', this.actualizarTamanoMapa);
-      return;
-    }
-
-    this.resizeObserver = new ResizeObserver(() => {
-      if (this.resizeTimer) {
-        clearTimeout(this.resizeTimer);
-      }
-
-      this.resizeTimer = setTimeout(() => this.actualizarTamanoMapa(), 80);
-    });
-    this.resizeObserver.observe(this.mapContainer.nativeElement);
-  }
-
-  private actualizarTamanoMapa = (): void => {
-    requestAnimationFrame(() => {
-      this.mapa?.invalidateSize({ pan: false, debounceMoveend: true });
-    });
-  };
 
   private renderizarSeleccion(): void {
     if (!this.mapa) {
@@ -207,26 +288,58 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     if (!this.marcadorSeleccion) {
-      this.marcadorSeleccion = L.circleMarker([latitud, longitud], {
-        radius: 11,
-        color: '#14532d',
-        weight: 4,
-        fillColor: '#22c55e',
-        fillOpacity: 1
-      }).addTo(this.mapa);
-      this.marcadorSeleccion.bindTooltip('Ubicación seleccionada', {
-        permanent: false,
-        direction: 'top'
-      });
+      const pin = document.createElement('div');
+      pin.className = 'eco-pin-seleccion';
+      pin.innerHTML = '<i class="bi bi-geo-alt-fill"></i>';
+
+      this.marcadorSeleccion = new mapboxgl.Marker({
+        element: pin,
+        anchor: 'bottom',
+        draggable: this.seleccionable
+      })
+        .setLngLat([longitud, latitud])
+        .addTo(this.mapa);
+
+      if (this.seleccionable) {
+        this.marcadorSeleccion.on('dragend', () => {
+          const lngLat = this.marcadorSeleccion!.getLngLat();
+          this.ubicacionChange.emit({ latitud: lngLat.lat, longitud: lngLat.lng });
+          this.mensajeUbicacion = 'Ubicación ajustada correctamente.';
+        });
+      }
     } else {
-      this.marcadorSeleccion.setLatLng([latitud, longitud]);
+      this.marcadorSeleccion.setLngLat([longitud, latitud]);
     }
 
     if (emitir) {
       this.ubicacionChange.emit({ latitud, longitud });
-      this.mensajeUbicacion = 'Ubicación seleccionada correctamente.';
+      this.mensajeUbicacion = 'Ubicación seleccionada en el mapa.';
     }
   }
+
+  private limpiarMarcadores(): void {
+    this.marcadoresReportes.forEach(m => m.remove());
+    this.marcadoresReportes = [];
+  }
+
+  private observarCambiosDeTamano(): void {
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', this.actualizarTamanoMapa);
+      return;
+    }
+
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.resizeTimer) {
+        clearTimeout(this.resizeTimer);
+      }
+      this.resizeTimer = setTimeout(() => this.actualizarTamanoMapa(), 80);
+    });
+    this.resizeObserver.observe(this.mapContainer.nativeElement);
+  }
+
+  private actualizarTamanoMapa = (): void => {
+    this.mapa?.resize();
+  };
 
   private obtenerColorEstado(reporte: Reporte): string {
     switch (reporte.estado) {
@@ -241,22 +354,24 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       case 'Verificado':
         return '#16a34a';
       case 'Rechazado':
+      default:
         return '#6b7280';
     }
   }
 
   private crearContenidoPopup(reporte: Reporte): HTMLElement {
     const contenedor = document.createElement('div');
-    const titulo = document.createElement('strong');
-    const detalle = document.createElement('p');
-    const estado = document.createElement('small');
+    contenedor.className = 'eco-popup-3d';
 
+    const titulo = document.createElement('h4');
     titulo.textContent = reporte.titulo;
-    detalle.textContent = `${reporte.distrito} · ${reporte.direccion}`;
-    estado.textContent = `${reporte.estado} · Prioridad ${reporte.prioridad}`;
 
-    detalle.style.margin = '6px 0';
-    estado.style.color = '#64748b';
+    const detalle = document.createElement('p');
+    detalle.textContent = `${reporte.distrito} · ${reporte.direccion || 'Sin dirección exacta'}`;
+
+    const estado = document.createElement('span');
+    estado.className = 'eco-popup-badge';
+    estado.textContent = `${reporte.estado} · Prioridad ${reporte.prioridad}`;
 
     contenedor.append(titulo, detalle, estado);
     return contenedor;

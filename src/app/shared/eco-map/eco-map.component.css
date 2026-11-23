@@ -46,25 +46,51 @@
   flex-shrink: 0;
   color: white;
   background: #16803c;
+  border: none;
+  border-radius: 8px;
   font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.map-toolbar button:hover:not(:disabled) {
+  background: #15803d;
+  transform: translateY(-1px);
+}
+
+.map-toolbar button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .map-container {
   width: 100%;
-  min-height: 280px;
+  min-height: 320px;
   position: relative;
-  background: #e5e7eb;
+  background: #1e293b;
   z-index: 1;
+  display: block;
 }
 
-:host ::ng-deep .leaflet-container {
-  width: 100%;
-  font-family: inherit;
-  background: #e5e7eb;
+:host ::ng-deep .mapboxgl-map {
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
-:host ::ng-deep .leaflet-tile {
-  backface-visibility: hidden;
+:host ::ng-deep .mapboxgl-canvas-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+:host ::ng-deep .mapboxgl-canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .map-message {
@@ -77,6 +103,86 @@
 .map-message.success {
   color: #166534;
   background: #dcfce7;
+}
+
+/* Pines 3D Personalizados para Mapbox */
+:host ::ng-deep .eco-pin-3d {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid #ffffff;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  animation: eco-pulse 2.2s infinite;
+}
+
+:host ::ng-deep .eco-pin-3d:hover {
+  transform: scale(1.45);
+  z-index: 10;
+}
+
+@keyframes eco-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+:host ::ng-deep .eco-pin-seleccion {
+  font-size: 2.2rem;
+  color: #16a34a;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+  cursor: grab;
+  animation: eco-bounce 1s infinite alternate ease-in-out;
+}
+
+@keyframes eco-bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-8px);
+  }
+}
+
+/* Popups Modernos en 3D */
+:host ::ng-deep .mapboxgl-popup-content {
+  padding: 1rem 1.15rem;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  font-family: inherit;
+  max-width: 280px;
+}
+
+:host ::ng-deep .eco-popup-3d h4 {
+  margin: 0 0 0.35rem 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+:host ::ng-deep .eco-popup-3d p {
+  margin: 0 0 0.65rem 0;
+  font-size: 0.82rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+:host ::ng-deep .eco-popup-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #334155;
 }
 
 @media (max-width: 620px) {

@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ReporteService } from '../../services/reporte.service';
 import { CuadrillaService } from '../../services/cuadrilla.service';
@@ -17,7 +17,7 @@ interface ModalCuadrilla {
   id?: number;
   nombre: string;
   responsable: string;
-  responsable_id?: number;
+  responsable_id?: number | null;
   distrito: string;
   zona_asignada: string;
 }
@@ -61,28 +61,49 @@ export class CuadrillasComponent implements OnInit {
   }
 
   cargar(): void {
-    this.reporteService.obtenerReportes({ estado: 'Aprobado', page: this.page, page_size: this.pageSize }).subscribe(res => {
-      this.reportesAprobados = res.items;
-      this.total = res.total;
-      this.totalPages = res.total_pages;
+    this.cargarReportes();
+    this.cargarCuadrillas();
+    this.cargarResponsables();
+  }
+
+  cargarReportes(): void {
+    this.reporteService.obtenerReportes({ estado: 'Aprobado', page: this.page, page_size: this.pageSize }).subscribe({
+      next: res => {
+        this.reportesAprobados = res.items;
+        this.total = res.total;
+        this.totalPages = res.total_pages;
+      },
+      error: (err: HttpErrorResponse) => this.mostrarError(err, 'No se pudieron cargar los reportes aprobados.')
     });
-    this.cuadrillaService.obtenerCuadrillas().subscribe(data => {
-      this.cuadrillas = data;
+  }
+
+  cargarCuadrillas(): void {
+    this.cuadrillaService.obtenerCuadrillas().subscribe({
+      next: data => {
+        this.cuadrillas = data;
+      },
+      error: (err: HttpErrorResponse) => this.mostrarError(err, 'No se pudieron cargar las cuadrillas.')
     });
-    this.usuarioService.obtenerUsuarios().subscribe(data => {
-      this.responsables = data.filter(u => u.rol === 'ResponsableCuadrilla');
+  }
+
+  cargarResponsables(): void {
+    this.usuarioService.obtenerUsuarios().subscribe({
+      next: data => {
+        this.responsables = data.filter(u => u.rol === 'ResponsableCuadrilla');
+      },
+      error: (err: HttpErrorResponse) => this.mostrarError(err, 'No se pudieron cargar los responsables.')
     });
   }
 
   onPageSizeChange(): void {
     this.page = 1;
-    this.cargar();
+    this.cargarReportes();
   }
 
   irPagina(p: number): void {
     if (p < 1 || p > this.totalPages) return;
     this.page = p;
-    this.cargar();
+    this.cargarReportes();
   }
 
   paginaSiguiente(): void { this.irPagina(this.page + 1); }
@@ -96,18 +117,28 @@ export class CuadrillasComponent implements OnInit {
     return paginas;
   }
 
+  private mostrarError(err: HttpErrorResponse, fallback: string): void {
+    this.mensajeError = typeof err.error?.detail === 'string'
+      ? err.error.detail
+      : fallback;
+    setTimeout(() => this.mensajeError = null, 5000);
+  }
+
   asignar(reporteId: number): void {
     const cuadrillaId = this.seleccion[reporteId];
     if (!cuadrillaId) return;
-    this.cuadrillaService.asignarCuadrilla(reporteId, cuadrillaId).subscribe(ok => {
-      if (!ok) {
-        this.mensajeError = 'No se pudo asignar: la cuadrilla puede haber alcanzado el límite de asignaciones';
-        setTimeout(() => this.mensajeError = null, 4000);
-        return;
-      }
-      this.mensajeExito = 'Cuadrilla asignada correctamente';
-      this.cargar();
-      setTimeout(() => this.mensajeExito = null, 3000);
+    this.mensajeError = null;
+    this.cuadrillaService.asignarCuadrilla(reporteId, cuadrillaId).subscribe({
+      next: () => {
+        this.mensajeExito = 'Cuadrilla asignada correctamente';
+        this.cargarReportes();
+        this.cargarCuadrillas();
+        setTimeout(() => this.mensajeExito = null, 3000);
+      },
+      error: (err: HttpErrorResponse) => this.mostrarError(
+        err,
+        'No se pudo asignar: la cuadrilla puede haber alcanzado el límite de asignaciones'
+      )
     });
   }
 
@@ -130,7 +161,7 @@ export class CuadrillasComponent implements OnInit {
     this.modal.abierto = false;
   }
 
-  onResponsableChange(userId: number | undefined): void {
+  onResponsableChange(userId: number | null | undefined): void {
     this.modal.responsable_id = userId;
     const user = this.responsables.find(u => u.id === userId);
     if (user) {
@@ -156,15 +187,14 @@ export class CuadrillasComponent implements OnInit {
       ? this.cuadrillaService.actualizarCuadrilla(this.modal.id!, data)
       : this.cuadrillaService.crearCuadrilla(data);
 
-    action.subscribe(ok => {
-      if (!ok) {
-        this.mensajeError = 'Error al guardar la cuadrilla';
-        return;
-      }
-      this.cerrarModal();
-      this.mensajeExito = this.modal.editando ? 'Cuadrilla actualizada' : 'Cuadrilla creada';
-      this.cargar();
-      setTimeout(() => this.mensajeExito = null, 3000);
+    action.subscribe({
+      next: () => {
+        this.cerrarModal();
+        this.mensajeExito = this.modal.editando ? 'Cuadrilla actualizada' : 'Cuadrilla creada';
+        this.cargarCuadrillas();
+        setTimeout(() => this.mensajeExito = null, 3000);
+      },
+      error: (err: HttpErrorResponse) => this.mostrarError(err, 'Error al guardar la cuadrilla.')
     });
   }
 
@@ -174,17 +204,18 @@ export class CuadrillasComponent implements OnInit {
 
   confirmarEliminacion(): void {
     if (!this.cuadrillaAEliminar) return;
-    this.cuadrillaService.eliminarCuadrilla(this.cuadrillaAEliminar.id).subscribe(ok => {
-      if (!ok) {
-        this.mensajeError = 'No se puede eliminar: tiene reportes activos asignados';
-        setTimeout(() => this.mensajeError = null, 4000);
+    this.mensajeError = null;
+    this.cuadrillaService.eliminarCuadrilla(this.cuadrillaAEliminar.id).subscribe({
+      next: () => {
+        this.mensajeExito = 'Cuadrilla eliminada';
         this.cuadrillaAEliminar = null;
-        return;
+        this.cargarCuadrillas();
+        setTimeout(() => this.mensajeExito = null, 3000);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.cuadrillaAEliminar = null;
+        this.mostrarError(err, 'No se puede eliminar: tiene reportes activos asignados.');
       }
-      this.mensajeExito = 'Cuadrilla eliminada';
-      this.cuadrillaAEliminar = null;
-      this.cargar();
-      setTimeout(() => this.mensajeExito = null, 3000);
     });
   }
 

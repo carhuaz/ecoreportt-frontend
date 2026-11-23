@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Cuadrilla } from '../models/cuadrilla.model';
 import { environment } from '../../environments/environment';
 
@@ -23,29 +23,25 @@ export class CuadrillaService {
     return this.http.post(
       `${this.apiUrl}/cuadrillas/${cuadrillaId}/asignar-revision?reporte_id=${reporteId}`, {}
     ).pipe(
-      map(() => true),
-      catchError(() => of(false))
+      map(() => true)
     );
   }
 
-  crearCuadrilla(data: { nombre: string; responsable: string; distrito: string; zona_asignada?: string; responsable_id?: number }): Observable<boolean> {
+  crearCuadrilla(data: { nombre: string; responsable?: string; distrito: string; zona_asignada?: string; responsable_id?: number | null }): Observable<boolean> {
     return this.http.post(`${this.apiUrl}/cuadrillas`, data).pipe(
-      map(() => true),
-      catchError(() => of(false))
+      map(() => true)
     );
   }
 
-  actualizarCuadrilla(id: number, data: { nombre?: string; responsable?: string; distrito?: string; zona_asignada?: string; estado?: string; responsable_id?: number }): Observable<boolean> {
+  actualizarCuadrilla(id: number, data: { nombre?: string; responsable?: string; distrito?: string; zona_asignada?: string; responsable_id?: number | null }): Observable<boolean> {
     return this.http.put(`${this.apiUrl}/cuadrillas/${id}`, data).pipe(
-      map(() => true),
-      catchError(() => of(false))
+      map(() => true)
     );
   }
 
   eliminarCuadrilla(id: number): Observable<boolean> {
     return this.http.delete(`${this.apiUrl}/cuadrillas/${id}`).pipe(
-      map(() => true),
-      catchError(() => of(false))
+      map(() => true)
     );
   }
 }
