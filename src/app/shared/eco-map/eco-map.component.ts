@@ -294,13 +294,23 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       hayPuntosValidos = true;
     });
 
-    if (hayPuntosValidos && !this.seleccionable && this.reportes.length > 1) {
-      this.mapa.fitBounds(bounds, {
-        padding: 50,
-        maxZoom: 15.5,
-        pitch: 50,
-        duration: 1200
-      });
+    if (hayPuntosValidos && !this.seleccionable) {
+      if (this.marcadoresReportes.length === 1) {
+        const unico = this.marcadoresReportes[0].getLngLat();
+        this.mapa.flyTo({
+          center: [unico.lng, unico.lat],
+          zoom: 15.5,
+          pitch: 50,
+          duration: 1000
+        });
+      } else if (this.marcadoresReportes.length > 1) {
+        this.mapa.fitBounds(bounds, {
+          padding: 50,
+          maxZoom: 15.5,
+          pitch: 50,
+          duration: 1200
+        });
+      }
     }
   }
 
