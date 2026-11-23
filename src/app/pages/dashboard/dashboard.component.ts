@@ -17,6 +17,7 @@ import { PaginacionComponent } from '../../shared/paginacion/paginacion.componen
 })
 export class DashboardComponent implements OnInit {
   reportes: Reporte[] = [];
+  mapaReportes: Reporte[] = [];
   page = 1;
   pageSize = 10;
   total = 0;
@@ -69,6 +70,14 @@ export class DashboardComponent implements OnInit {
       this.reportes = res.items;
       this.total = res.total;
       this.totalPages = res.total_pages;
+
+      if (this.esCiudadano && res.items.length === 0) {
+        this.reporteService.obtenerReportesPublicos({ page_size: 200 }).subscribe(pub => {
+          this.mapaReportes = pub.items;
+        });
+      } else {
+        this.mapaReportes = res.items;
+      }
     });
   }
 

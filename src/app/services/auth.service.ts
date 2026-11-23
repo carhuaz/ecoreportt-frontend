@@ -160,7 +160,13 @@ export class AuthService {
   }
 
   verificarCodigo(email: string, codigo: string): Observable<AuthResult> {
-    return this.http.post<{ mensaje?: string }>(`${this.apiUrl}/auth/verify`, { email, codigo }).pipe(
+    return this.http.post<any>(`${this.apiUrl}/auth/verify`, { email, codigo }).pipe(
+      tap(res => {
+        if (res?.token) {
+          localStorage.setItem(this.tokenKey, res.token);
+          this.usuarioSubject.next(this.mapUsuario(res));
+        }
+      }),
       map(res => ({ ok: true, mensaje: res?.mensaje })),
       catchError(err => of(mapearErrorAuth(err, 'Código incorrecto. Revisa tu correo o solicita uno nuevo.')))
     );

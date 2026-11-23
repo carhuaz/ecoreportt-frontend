@@ -135,6 +135,30 @@ button {
   transition: all 0.2s ease;
 }
 
+a.btn-primary,
+a.btn-secondary,
+a.btn-danger,
+a.btn-warning,
+a.btn-success,
+a.btn-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+a.btn-primary:hover,
+a.btn-success:hover {
+  color: white;
+}
+
 .btn-primary {
   background: var(--color-primary);
   color: white;

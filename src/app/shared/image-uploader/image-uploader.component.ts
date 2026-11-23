@@ -17,8 +17,11 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from 
             />
             <div class="upload-box" (click)="fileInput.click()">
               <div class="upload-icon">📸</div>
-              <p class="upload-text">Haz clic o arrastra imágenes aquí</p>
-              <p class="upload-hint">JPG, JPEG, PNG, WEBP • Máx 2 MB</p>
+              <p class="upload-text">Sube tus fotos de evidencia</p>
+              <p class="upload-hint">JPG, JPEG, PNG o WEBP • Máximo 2 MB por imagen (hasta 3)</p>
+              <button type="button" class="btn-upload-pick" (click)="$event.stopPropagation(); fileInput.click()">
+                <i class="bi bi-cloud-arrow-up"></i> Seleccionar imágenes
+              </button>
             </div>
           </div>
         }
@@ -87,9 +90,29 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from 
     }
 
     .upload-hint {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--color-muted);
-      margin: 0.5rem 0 0 0;
+      margin: 0.45rem 0 1rem 0;
+    }
+
+    .btn-upload-pick {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1.15rem;
+      border: none;
+      border-radius: 10px;
+      background: #16803c;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .btn-upload-pick:hover {
+      background: #14532d;
+      transform: translateY(-1px);
     }
 
     .alert {

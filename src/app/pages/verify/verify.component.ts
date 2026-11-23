@@ -215,7 +215,7 @@ export class VerifyComponent implements OnInit, OnDestroy {
         }
 
         this.exito.set(true);
-        setTimeout(() => this.router.navigate(['/login']), 2000);
+        setTimeout(() => this.router.navigate([this.authService.obtenerRutaInicial()]), 1000);
       }
     }
   });
