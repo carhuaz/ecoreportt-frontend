@@ -8,6 +8,8 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 22
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=450
     routes:
       - type: rewrite
         source: /*
