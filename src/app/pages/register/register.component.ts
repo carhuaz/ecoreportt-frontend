@@ -90,9 +90,19 @@ export class RegisterComponent {
   readonly verificandoDni = signal(false);
   readonly dniVerificado = signal(false);
   readonly dniMensaje = signal('');
+  readonly ultimoDniVerificado = signal('');
+
+  yaVerificado(): boolean {
+    const actual = this.registerModel().dni.trim();
+    return this.dniVerificado() && actual.length === 8 && actual === this.ultimoDniVerificado();
+  }
 
   async verificarDni(): Promise<void> {
     const dni = this.registerModel().dni.trim();
+    if (this.yaVerificado()) {
+      return;
+    }
+
     this.dniMensaje.set('');
     this.dniVerificado.set(false);
 
@@ -107,6 +117,7 @@ export class RegisterComponent {
       if (res.ok && res.nombreCompleto) {
         this.registerModel.update(m => ({ ...m, nombre: res.nombreCompleto! }));
         this.dniVerificado.set(true);
+        this.ultimoDniVerificado.set(dni);
         this.dniMensaje.set('DNI verificado en RENIEC.');
       } else {
         this.dniMensaje.set(res.mensaje || 'No se pudo validar el DNI.');

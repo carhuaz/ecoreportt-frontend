@@ -26,9 +26,9 @@
             type="button"
             class="btn-verify-dni"
             (click)="verificarDni()"
-            [disabled]="verificandoDni()"
+            [disabled]="verificandoDni() || yaVerificado()"
           >
-            {{ verificandoDni() ? 'Validando...' : 'Verificar' }}
+            {{ verificandoDni() ? 'Validando...' : (yaVerificado() ? 'Verificado' : 'Verificar') }}
           </button>
         </div>
         @if (dniMensaje()) {
