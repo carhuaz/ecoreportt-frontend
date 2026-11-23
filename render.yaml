@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: ecoreport-frontend
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist/ecoreport-angular/browser
+    autoDeploy: false
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
