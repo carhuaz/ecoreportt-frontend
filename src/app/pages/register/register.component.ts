@@ -87,4 +87,32 @@ export class RegisterComponent {
 
   readonly serverError = signal('');
   readonly exito = signal(false);
+  readonly verificandoDni = signal(false);
+  readonly dniVerificado = signal(false);
+  readonly dniMensaje = signal('');
+
+  async verificarDni(): Promise<void> {
+    const dni = this.registerModel().dni.trim();
+    this.dniMensaje.set('');
+    this.dniVerificado.set(false);
+
+    if (!/^\d{8}$/.test(dni)) {
+      this.dniMensaje.set('Ingresa exactamente 8 dígitos para validar tu DNI.');
+      return;
+    }
+
+    this.verificandoDni.set(true);
+    try {
+      const res = await firstValueFrom(this.authService.consultarDni(dni));
+      if (res.ok && res.nombreCompleto) {
+        this.registerModel.update(m => ({ ...m, nombre: res.nombreCompleto! }));
+        this.dniVerificado.set(true);
+        this.dniMensaje.set('DNI verificado en RENIEC.');
+      } else {
+        this.dniMensaje.set(res.mensaje || 'No se pudo validar el DNI.');
+      }
+    } finally {
+      this.verificandoDni.set(false);
+    }
+  }
 }
