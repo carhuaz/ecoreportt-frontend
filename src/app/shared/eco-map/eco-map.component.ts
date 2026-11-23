@@ -67,7 +67,12 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       (window as any).MAPBOX_TOKEN ||
       DEFAULT_MAPBOX_TOKEN;
 
-    (mapboxgl as typeof mapboxgl & { accessToken: string }).accessToken = token;
+    const mapboxWithProps = mapboxgl as typeof mapboxgl & {
+      accessToken: string;
+      workerUrl?: string;
+    };
+    mapboxWithProps.accessToken = token;
+    mapboxWithProps.workerUrl = '/assets/mapbox-gl-csp-worker.js';
 
     const latInit = Number(this.latitud);
     const lngInit = Number(this.longitud);
