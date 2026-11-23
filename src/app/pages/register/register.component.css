@@ -75,6 +75,53 @@
   font-size: 0.8rem;
 }
 
+.dni-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.dni-row input {
+  flex: 1;
+}
+
+.btn-verify-dni {
+  padding: 0 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #16803c;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.btn-verify-dni:hover:not(:disabled) {
+  background: #0f5132;
+}
+
+.btn-verify-dni:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dni-status {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.dni-status.ok {
+  color: #16803c;
+}
+
+.dni-status.err {
+  color: #b45309;
+}
+
 .btn-submit {
   width: 100%;
   background: #16803c;

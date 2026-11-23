@@ -13,8 +13,39 @@
 
     <form [formRoot]="registerForm">
       <div class="form-group">
+        <label for="dni">DNI <span class="req">*</span></label>
+        <div class="dni-row">
+          <input
+            id="dni"
+            type="text"
+            [formField]="registerForm.dni"
+            placeholder="12345678"
+            inputmode="numeric"
+          />
+          <button
+            type="button"
+            class="btn-verify-dni"
+            (click)="verificarDni()"
+            [disabled]="verificandoDni()"
+          >
+            {{ verificandoDni() ? 'Validando...' : 'Verificar' }}
+          </button>
+        </div>
+        @if (dniMensaje()) {
+          <small class="dni-status" [class.ok]="dniVerificado()" [class.err]="!dniVerificado()">
+            {{ dniVerificado() ? '✅ ' : '⚠️ ' }}{{ dniMensaje() }}
+          </small>
+        }
+        @if (registerForm.dni().touched() && registerForm.dni().invalid()) {
+          @for (error of registerForm.dni().errors(); track error.kind) {
+            <small class="field-error">{{ error.message }}</small>
+          }
+        }
+      </div>
+
+      <div class="form-group">
         <label for="nombre">Nombre completo</label>
-        <input id="nombre" type="text" [formField]="registerForm.nombre" placeholder="Tu nombre completo" />
+        <input id="nombre" type="text" [formField]="registerForm.nombre" placeholder="Tu nombre completo (se autocompleta al verificar DNI)" />
         @if (registerForm.nombre().touched() && registerForm.nombre().invalid()) {
           @for (error of registerForm.nombre().errors(); track error.kind) {
             <small class="field-error">{{ error.message }}</small>
@@ -27,22 +58,6 @@
         <input id="email" type="email" [formField]="registerForm.email" placeholder="tu@correo.com" />
         @if (registerForm.email().touched() && registerForm.email().invalid()) {
           @for (error of registerForm.email().errors(); track error.kind) {
-            <small class="field-error">{{ error.message }}</small>
-          }
-        }
-      </div>
-
-      <div class="form-group">
-        <label for="dni">DNI <span class="req">*</span></label>
-        <input
-          id="dni"
-          type="text"
-          [formField]="registerForm.dni"
-          placeholder="12345678"
-          inputmode="numeric"
-        />
-        @if (registerForm.dni().touched() && registerForm.dni().invalid()) {
-          @for (error of registerForm.dni().errors(); track error.kind) {
             <small class="field-error">{{ error.message }}</small>
           }
         }

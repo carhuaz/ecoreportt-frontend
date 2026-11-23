@@ -149,6 +149,16 @@ export class AuthService {
     );
   }
 
+  consultarDni(dni: string): Observable<{ ok: boolean; nombreCompleto?: string; mensaje?: string }> {
+    return this.http.get<{ nombre_completo?: string }>(`${this.apiUrl}/auth/dni/${dni.trim()}`).pipe(
+      map(res => ({ ok: true, nombreCompleto: res?.nombre_completo || '' })),
+      catchError(err => {
+        const mapped = mapearErrorAuth(err, 'No se pudo validar el DNI en RENIEC.');
+        return of({ ok: false, mensaje: mapped.mensaje });
+      })
+    );
+  }
+
   verificarCodigo(email: string, codigo: string): Observable<AuthResult> {
     return this.http.post<{ mensaje?: string }>(`${this.apiUrl}/auth/verify`, { email, codigo }).pipe(
       map(res => ({ ok: true, mensaje: res?.mensaje })),
