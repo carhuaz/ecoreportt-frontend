@@ -138,6 +138,19 @@ export class ReporteService {
     );
   }
 
+  obtenerAuditoriaValidaciones(page = 1, pageSize = 50): Observable<Paginacion<any>> {
+    const params = new HttpParams().set('page', page).set('page_size', pageSize);
+    return this.http.get<any>(`${this.apiUrl}/reportes/auditoria`, { params }).pipe(
+      map(res => ({
+        items: res.items,
+        total: res.total,
+        page: res.page,
+        page_size: res.page_size,
+        total_pages: res.total_pages
+      }))
+    );
+  }
+
   obtenerResumenEstadisticas(): Observable<{ total_reportes: number; por_estado: { estado: string; cantidad: number }[]; por_distrito: { distrito: string; cantidad: number }[]; por_prioridad: { prioridad: string; cantidad: number }[] }> {
     return this.http.get<any>(`${this.apiUrl}/estadisticas/resumen`);
   }

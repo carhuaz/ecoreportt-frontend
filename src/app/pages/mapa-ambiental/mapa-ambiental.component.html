@@ -3,40 +3,95 @@
     <div>
       <span class="eyebrow">Observatorio ciudadano</span>
       <h1>Mapa ambiental de Huancayo</h1>
-      <p>Visualización de incidencias aprobadas y publicadas por la municipalidad.</p>
+      <p>Visualización 3D de incidencias aprobadas y publicadas por la municipalidad.</p>
     </div>
     <a routerLink="/reportes-publicos">Ver listado completo</a>
+  </div>
+
+  <div class="map-filters">
+    <div class="filter-search">
+      <i class="bi bi-search"></i>
+      <input
+        type="text"
+        [(ngModel)]="busqueda"
+        (ngModelChange)="aplicarFiltros()"
+        placeholder="Buscar por título, dirección o distrito..."
+      />
+    </div>
+
+    <select [(ngModel)]="filtroDistrito" (ngModelChange)="aplicarFiltros()" aria-label="Filtrar por distrito">
+      <option value="">Todos los distritos</option>
+      @for (distrito of distritosDisponibles; track distrito) {
+        <option [value]="distrito">{{ distrito }}</option>
+      }
+    </select>
+
+    <select [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()" aria-label="Filtrar por estado">
+      <option value="">Todos los estados</option>
+      @for (estado of estadosDisponibles; track estado) {
+        <option [value]="estado">{{ estado }}</option>
+      }
+    </select>
+
+    <select [(ngModel)]="filtroPrioridad" (ngModelChange)="aplicarFiltros()" aria-label="Filtrar por prioridad">
+      <option value="">Todas las prioridades</option>
+      @for (prio of prioridadesDisponibles; track prio) {
+        <option [value]="prio">{{ prio }}</option>
+      }
+    </select>
+
+    <div class="filter-meta">
+      <span class="filter-count">
+        Mostrando <strong>{{ reportesFiltrados.length }}</strong> de {{ reportes.length }}
+      </span>
+      @if (hayFiltrosActivos) {
+        <button type="button" class="btn-clear-filters" (click)="limpiarFiltros()">
+          <i class="bi bi-x-circle"></i> Limpiar
+        </button>
+      }
+    </div>
   </div>
 
   <div class="map-layout">
     <div class="map-column">
       <app-eco-map
-        [reportes]="reportes"
+        [reportes]="reportesFiltrados"
         altura="570px"
         (reporteSeleccionado)="seleccionarReporte($event)"
-        />
-        <div class="legend">
-          <span><i class="aprobado"></i>Aprobado</span>
-          <span><i class="proceso"></i>En proceso</span>
-          <span><i class="resuelto"></i>Resuelto</span>
-        </div>
+      />
+      <div class="legend">
+        <span><i class="aprobado"></i>Aprobado</span>
+        <span><i class="proceso"></i>En proceso</span>
+        <span><i class="resuelto"></i>Resuelto</span>
       </div>
-
-      @if (reporteActivo; as reporte) {
-        <aside class="detail-card">
-          <span class="detail-status" [ngClass]="claseEstado(reporte)">
-            {{ reporte.estado }}
-          </span>
-          <h2>{{ reporte.titulo }}</h2>
-          <p>{{ reporte.descripcion }}</p>
-          <dl>
-            <div><dt>Distrito</dt><dd>{{ reporte.distrito }}</dd></div>
-            <div><dt>Prioridad</dt><dd>{{ reporte.prioridad }}</dd></div>
-            <div><dt>Dirección</dt><dd>{{ reporte.direccion }}</dd></div>
-            <div><dt>Fecha</dt><dd>{{ reporte.fecha }}</dd></div>
-          </dl>
-          <a routerLink="/registro" class="detail-action">Quiero participar</a>
-        </aside>
-      }
     </div>
-  </section>
+
+    @if (reporteActivo; as reporte) {
+      <aside class="detail-card">
+        <span class="detail-status" [ngClass]="claseEstado(reporte)">
+          {{ reporte.estado }}
+        </span>
+        <h2>{{ reporte.titulo }}</h2>
+        <p>{{ reporte.descripcion }}</p>
+        <dl>
+          <div><dt>Distrito</dt><dd>{{ reporte.distrito }}</dd></div>
+          <div><dt>Prioridad</dt><dd>{{ reporte.prioridad }}</dd></div>
+          <div><dt>Dirección</dt><dd>{{ reporte.direccion }}</dd></div>
+          <div><dt>Fecha</dt><dd>{{ reporte.fecha }}</dd></div>
+        </dl>
+        <a routerLink="/registro" class="detail-action">Quiero participar</a>
+      </aside>
+    } @else {
+      <aside class="detail-card detail-empty">
+        <i class="bi bi-geo-alt"></i>
+        <h3>Sin coincidencias</h3>
+        <p>No hay incidencias que coincidan con los filtros seleccionados.</p>
+        @if (hayFiltrosActivos) {
+          <button type="button" class="detail-action btn-reset-empty" (click)="limpiarFiltros()">
+            Restablecer filtros
+          </button>
+        }
+      </aside>
+    }
+  </div>
+</section>

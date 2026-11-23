@@ -25,13 +25,13 @@ jobs:
         run: npm ci
 
       - name: Compilar aplicación (Angular 22 Production Build)
-        run: npx ng build --configuration production
+        run: npm run build
 
   deploy:
     name: Continuous Deployment (Render)
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/frontend')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - name: Disparar Deploy Hook de Render
