@@ -1,92 +1,226 @@
 <div class="page-section">
-  <div class="page-header">
-    <h1>Auditoría de reportes atendidos</h1>
-    <p>Revisa los reportes atendidos por las cuadrillas y sus evidencias.</p>
+  <div class="page-header header-row">
+    <div>
+      <h1>Centro de Auditoría Administrativa</h1>
+      <p>Supervisa las evidencias de campo de cuadrillas y la bitácora de acciones de usuarios.</p>
+    </div>
+    <button type="button" class="btn-export-csv" (click)="exportarCsv()">
+      <i class="bi bi-file-earmark-spreadsheet"></i> Exportar CSV
+    </button>
   </div>
 
-  <div class="toolbar">
-    <div class="toolbar-filters">
-      <label>
-        Cuadrilla
-        <select [(ngModel)]="filtroCuadrilla" (change)="onFiltroChange()">
-          <option value="">Todas</option>
-          @for (c of cuadrillas; track c) {
-            <option [value]="c.id">{{ c.nombre }}</option>
-          }
-        </select>
-      </label>
-      <label>
-        Estado
-        <select [(ngModel)]="filtroEstado" (change)="onFiltroChange()">
-          <option value="">Todos</option>
-          <option value="Atendido">Atendido</option>
-          <option value="Verificado">Verificado</option>
-        </select>
-      </label>
-      <label>
-        Por página
-        <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
-          @for (s of pageSizes; track s) {
-            <option [ngValue]="s">{{ s }}</option>
-          }
-        </select>
-      </label>
+  <!-- Tarjetas KPI de auditoría -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <span class="kpi-label">Reportes en auditoría</span>
+      <strong class="kpi-value">{{ total }}</strong>
     </div>
-    @if (total > 0) {
-      <span class="toolbar-total">
-        Mostrando {{ desde }}–{{ hasta }} de <strong>{{ total }}</strong> reportes
-      </span>
+    <div class="kpi-card">
+      <span class="kpi-label">Atendidos (en vista)</span>
+      <strong class="kpi-value kpi-amber">{{ totalAtendidosVista }}</strong>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Verificados (en vista)</span>
+      <strong class="kpi-value kpi-green">{{ totalVerificadosVista }}</strong>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Bitácora de acciones</span>
+      <strong class="kpi-value kpi-blue">{{ totalBitacora }}</strong>
+    </div>
+  </div>
+
+  <!-- Pestañas -->
+  <div class="audit-tabs">
+    <button
+      type="button"
+      class="audit-tab"
+      [class.active]="tabActiva === 'evidencias'"
+      (click)="cambiarTab('evidencias')"
+    >
+      <i class="bi bi-camera"></i> Evidencias de Campo ({{ total }})
+    </button>
+    <button
+      type="button"
+      class="audit-tab"
+      [class.active]="tabActiva === 'bitacora'"
+      (click)="cambiarTab('bitacora')"
+    >
+      <i class="bi bi-journal-check"></i> Bitácora de Acciones ({{ totalBitacora }})
+    </button>
+  </div>
+
+  <!-- PESTAÑA 1: EVIDENCIAS DE CAMPO -->
+  @if (tabActiva === 'evidencias') {
+    <div class="toolbar">
+      <div class="toolbar-filters">
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input
+            type="text"
+            [(ngModel)]="busquedaEvidencias"
+            placeholder="Buscar reporte, distrito o cuadrilla..."
+          />
+        </div>
+        <label>
+          Cuadrilla
+          <select [(ngModel)]="filtroCuadrilla" (change)="onFiltroChange()">
+            <option value="">Todas</option>
+            @for (c of cuadrillas; track c.id) {
+              <option [value]="c.id">{{ c.nombre }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Estado
+          <select [(ngModel)]="filtroEstado" (change)="onFiltroChange()">
+            <option value="">Todos</option>
+            <option value="Atendido">Atendido</option>
+            <option value="Verificado">Verificado</option>
+          </select>
+        </label>
+        <label>
+          Por página
+          <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+            @for (s of pageSizes; track s) {
+              <option [ngValue]="s">{{ s }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      @if (total > 0) {
+        <span class="toolbar-total">
+          Mostrando {{ desde }}–{{ hasta }} de <strong>{{ total }}</strong> reportes
+        </span>
+      }
+    </div>
+
+    <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+
+    @if (itemsFiltrados.length === 0) {
+      <div class="empty-state">
+        <span>📋</span>
+        <p>No hay reportes atendidos que coincidan con los filtros.</p>
+      </div>
     }
-  </div>
 
-  <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
-
-  @if (items.length === 0) {
-    <div class="empty-state">
-      <span>📋</span>
-      <p>No hay reportes atendidos registrados.</p>
-    </div>
-  }
-
-  @if (items.length > 0) {
-    <div class="tabla-wrap">
-      <table class="tabla">
-        <thead>
-          <tr>
-            <th>Reporte</th>
-            <th>Cuadrilla</th>
-            <th>Distrito</th>
-            <th>Estado</th>
-            <th>Evidencias</th>
-            <th>Fecha</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of items; track item) {
+    @if (itemsFiltrados.length > 0) {
+      <div class="tabla-wrap">
+        <table class="tabla">
+          <thead>
             <tr>
-              <td><strong>{{ item.titulo }}</strong></td>
-              <td><span class="cuadrilla-badge">{{ item.cuadrilla_nombre || 'Sin asignar' }}</span></td>
-              <td>{{ item.distrito }}</td>
-              <td><app-badge-estado [estado]="item.estado" /></td>
-              <td>
-                @if (item.imagenes?.length) {
-                  <button class="btn-evidencias" (click)="abrirDetalle(item)">
-                    📷 {{ item.imagenes!.length }} imagen(es)
-                  </button>
-                }
-                @if (!item.imagenes?.length) {
-                  <span>—</span>
-                }
-              </td>
-              <td>{{ item.fecha }}</td>
+              <th>Reporte</th>
+              <th>Cuadrilla</th>
+              <th>Distrito</th>
+              <th>Estado</th>
+              <th>Detalle / Evidencias</th>
+              <th>Fecha</th>
             </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            @for (item of itemsFiltrados; track item.id) {
+              <tr>
+                <td>
+                  <strong>#{{ item.id }} — {{ item.titulo }}</strong>
+                </td>
+                <td><span class="cuadrilla-badge">{{ item.cuadrilla_nombre || 'Sin asignar' }}</span></td>
+                <td>{{ item.distrito }}</td>
+                <td><app-badge-estado [estado]="item.estado" /></td>
+                <td>
+                  <button class="btn-evidencias" (click)="abrirDetalle(item)">
+                    @if (item.imagenes?.length) {
+                      📷 {{ item.imagenes!.length }} imagen(es)
+                    } @else {
+                      👁 Ver detalle
+                    }
+                  </button>
+                </td>
+                <td>{{ item.fecha }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
   }
 
-  <app-paginacion [page]="page" [totalPages]="totalPages" (pageChange)="irPagina($event)" />
+  <!-- PESTAÑA 2: BITÁCORA DE ACCIONES DE USUARIOS -->
+  @if (tabActiva === 'bitacora') {
+    <div class="toolbar">
+      <div class="toolbar-filters">
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input
+            type="text"
+            [(ngModel)]="busquedaBitacora"
+            placeholder="Buscar por usuario, reporte, distrito u observación..."
+          />
+        </div>
+        <label>
+          Acción
+          <select [(ngModel)]="filtroAccion">
+            <option value="">Todas</option>
+            <option value="Aprobado">Aprobado</option>
+            <option value="Rechazado">Rechazado</option>
+          </select>
+        </label>
+      </div>
+      <span class="toolbar-total">
+        Mostrando <strong>{{ bitacoraFiltrada.length }}</strong> de {{ totalBitacora }} registros
+      </span>
+    </div>
+
+    <app-paginacion [page]="pageBitacora" [totalPages]="totalPagesBitacora" (pageChange)="irPaginaBitacora($event)" />
+
+    @if (bitacoraFiltrada.length === 0) {
+      <div class="empty-state">
+        <span>📜</span>
+        <p>No hay acciones registradas que coincidan con la búsqueda.</p>
+      </div>
+    }
+
+    @if (bitacoraFiltrada.length > 0) {
+      <div class="tabla-wrap">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Usuario / Validador</th>
+              <th>Acción</th>
+              <th>Reporte</th>
+              <th>Distrito</th>
+              <th>Observación</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (b of bitacoraFiltrada; track b.id) {
+              <tr>
+                <td>{{ b.fecha }}</td>
+                <td>
+                  <span class="user-badge">
+                    <i class="bi bi-person-check"></i> {{ b.validador_nombre }}
+                  </span>
+                </td>
+                <td>
+                  <span class="accion-badge" [class.aprobado]="b.accion === 'Aprobado'" [class.rechazado]="b.accion === 'Rechazado'">
+                    {{ b.accion }}
+                  </span>
+                </td>
+                <td>
+                  <strong>#{{ b.reporte_id }}</strong> — {{ b.titulo }}
+                </td>
+                <td>{{ b.distrito }}</td>
+                <td class="obs-cell">{{ b.observacion || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <app-paginacion [page]="pageBitacora" [totalPages]="totalPagesBitacora" (pageChange)="irPaginaBitacora($event)" />
+  }
 </div>
 
 <!-- Modal detalle de evidencias -->
@@ -110,7 +244,7 @@
               <span class="image-counter">{{ item.imagenes!.length }} evidencia(s)</span>
             }
             @if (!item.imagenes?.length) {
-              <p class="sin-evidencias">No se adjuntaron evidencias.</p>
+              <p class="sin-evidencias">No se adjuntaron evidencias fotográficas.</p>
             }
           </div>
           @if ((item.imagenes?.length ?? 0) > 1) {
