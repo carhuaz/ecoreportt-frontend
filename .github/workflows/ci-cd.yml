@@ -22,7 +22,7 @@ jobs:
           cache: "npm"
 
       - name: Instalar dependencias
-        run: npm ci
+        run: npm install
 
       - name: Compilar aplicación (Angular 22 Production Build)
         run: npm run build
