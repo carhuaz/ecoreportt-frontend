@@ -69,10 +69,20 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     (mapboxgl as typeof mapboxgl & { accessToken: string }).accessToken = token;
 
-    const centroInicial: [number, number] =
-      this.longitud !== undefined && this.latitud !== undefined
-        ? [this.longitud, this.latitud]
-        : [-75.2049, -12.0651]; // Huancayo centro [lng, lat]
+    const latInit = Number(this.latitud);
+    const lngInit = Number(this.longitud);
+    const hasInitialCoords =
+      this.latitud !== undefined &&
+      this.latitud !== null &&
+      this.longitud !== undefined &&
+      this.longitud !== null &&
+      Number.isFinite(latInit) &&
+      Number.isFinite(lngInit) &&
+      !(latInit === 0 && lngInit === 0);
+
+    const centroInicial: [number, number] = hasInitialCoords
+      ? [lngInit, latInit]
+      : [-75.2049, -12.0651]; // Huancayo centro [lng, lat]
 
     this.mapa = new mapboxgl.Map({
       container: this.mapContainer.nativeElement,
@@ -100,6 +110,11 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       this.renderizarSeleccion();
     });
 
+    this.mapa.on('error', err => {
+      console.warn('Mapbox warning/error:', err?.error?.message || err);
+    });
+
+    requestAnimationFrame(() => this.mapa?.resize());
     setTimeout(() => this.mapa?.resize(), 150);
     setTimeout(() => this.mapa?.resize(), 600);
     setTimeout(() => this.mapa?.resize(), 1500);
@@ -230,7 +245,21 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     let hayPuntosValidos = false;
 
     this.reportes.forEach(reporte => {
-      if (reporte.latitud === undefined || reporte.longitud === undefined) {
+      const lat = Number(reporte.latitud);
+      const lng = Number(reporte.longitud);
+      if (
+        reporte.latitud === undefined ||
+        reporte.latitud === null ||
+        reporte.longitud === undefined ||
+        reporte.longitud === null ||
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng) ||
+        lat < -90 ||
+        lat > 90 ||
+        lng < -180 ||
+        lng > 180 ||
+        (lat === 0 && lng === 0)
+      ) {
         return;
       }
 
@@ -245,7 +274,7 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       );
 
       const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
-        .setLngLat([reporte.longitud, reporte.latitud])
+        .setLngLat([lng, lat])
         .setPopup(popup)
         .addTo(this.mapa!);
 
@@ -254,7 +283,7 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       });
 
       this.marcadoresReportes.push(marker);
-      bounds.extend([reporte.longitud, reporte.latitud]);
+      bounds.extend([lng, lat]);
       hayPuntosValidos = true;
     });
 
