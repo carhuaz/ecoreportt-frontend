@@ -2,6 +2,10 @@
 
 Sistema web de reportes ambientales para la Municipalidad de Huancayo. Permite a ciudadanos reportar problemas ambientales (acumulación de basura, desmonte, residuos orgánicos, etc.), a validadores evaluar y aprobar/rechazar reportes, a responsables de cuadrilla gestionar la atención en campo, y a administradores supervisar todo el flujo.
 
+- **Frontend:** Angular 22 (Standalone Components, Lazy Loading, Signal Forms, Mapbox GL JS 3D con filtros en vivo y Centro de Auditoría).
+- **Backend API (Render):** https://ecoreport-backend-e0nk.onrender.com
+- **CI/CD:** GitHub Actions (`.github/workflows/ci-cd.yml`) con compilación de producción automática y despliegue en Render.
+
 ---
 
 ## Tabla de Contenidos
