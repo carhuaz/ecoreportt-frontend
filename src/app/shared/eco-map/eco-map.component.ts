@@ -269,21 +269,23 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       }
 
       const color = this.obtenerColorEstado(reporte);
+      const wrapper = document.createElement('div');
       const el = document.createElement('div');
       el.className = 'eco-pin-3d';
       el.style.backgroundColor = color;
       el.style.boxShadow = `0 0 12px ${color}88`;
+      wrapper.appendChild(el);
 
       const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setDOMContent(
         this.crearContenidoPopup(reporte)
       );
 
-      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+      const marker = new mapboxgl.Marker({ element: wrapper, anchor: 'center' })
         .setLngLat([lng, lat])
         .setPopup(popup)
         .addTo(this.mapa!);
 
-      el.addEventListener('click', () => {
+      wrapper.addEventListener('click', () => {
         this.reporteSeleccionado.emit(reporte);
       });
 
@@ -322,12 +324,14 @@ export class EcoMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     }
 
     if (!this.marcadorSeleccion) {
+      const wrapper = document.createElement('div');
       const pin = document.createElement('div');
       pin.className = 'eco-pin-seleccion';
       pin.innerHTML = '<i class="bi bi-geo-alt-fill"></i>';
+      wrapper.appendChild(pin);
 
       this.marcadorSeleccion = new mapboxgl.Marker({
-        element: pin,
+        element: wrapper,
         anchor: 'bottom',
         draggable: this.seleccionable
       })
